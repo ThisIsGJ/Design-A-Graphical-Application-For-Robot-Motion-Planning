@@ -9,6 +9,8 @@ import javax.swing.border.EtchedBorder;
 
 public class UserInterface implements ActionListener{
 	
+	private DrawPolygon DP;
+	
 	private JFrame frame;
 	private Container contentPanel;
 	private JPanel buttonPanel;
@@ -20,6 +22,8 @@ public class UserInterface implements ActionListener{
 	private Point startPoint;
 	private Point endPoint;
 	
+	private ArrayList<Polygon> polygons;
+	
 	public UserInterface(){
 		frame = new JFrame("Robot Motion");
 		contentPanel = frame.getContentPane(); 
@@ -28,11 +32,13 @@ public class UserInterface implements ActionListener{
 		pointClicked = new ArrayList<Point>();
 		setStart = false;
 		setEnd = false;
-		startPoint = new Point(0,0);
-		endPoint = new Point(0,0);
+		startPoint = new Point(-1,-1);
+		endPoint = new Point(-1,-1);
 		
 		MakeFrame();
-		
+		polygons = new ArrayList<Polygon>(); 
+		DP = new DrawPolygon();
+
 	}
 	
 	private void MakeFrame(){
@@ -69,8 +75,20 @@ public class UserInterface implements ActionListener{
 	
 	public void actionPerformed(ActionEvent e) {
 		String choice = e.getActionCommand();
+		//draw convex hull
 		if(choice == "Draw Shape"){
-			System.out.println("Drawed!!");
+			pointClicked = DP.QuickHull(pointClicked);
+			int xPoly[] = new int[30];
+			int yPoly[] = new int[30];
+			for (int i = 0; i < pointClicked.size(); i++){
+				 xPoly[i] = pointClicked.get(i).x;
+				 yPoly[i] = pointClicked.get(i).y;
+			}
+			int npoints = pointClicked.size();
+			Polygon Polygon = new Polygon(xPoly,yPoly,npoints);
+			polygons.add(Polygon);   
+			pointClicked.clear();
+			robotPanel.repaint();
 		}else if(choice == "Start Point"){
 			setStart = true;
 			setEnd = false;
@@ -80,11 +98,12 @@ public class UserInterface implements ActionListener{
 		}else if(choice == "Clean All"){
 			setStart = false;
 			setEnd = false;
-			startPoint.x = 0;
-			startPoint.y = 0;
-			endPoint.y = 0;
-			endPoint.x = 0;
+			startPoint.x = -1;
+			startPoint.y = -1;
+			endPoint.y = -1;
+			endPoint.x = -1;
 			pointClicked.clear();
+			polygons.clear();
 			robotPanel.repaint();
 		}
 	}
@@ -102,7 +121,7 @@ public class UserInterface implements ActionListener{
 	    	         }else if(setEnd == true){
 	    	        	 endPoint.x = e.getPoint().x;
 	    	        	 endPoint.y = e.getPoint().y;
-	    	         }else{
+	    	         }else {
 	    	        	 pointClicked.add(e.getPoint());
 	    	         }    
 	            	 
@@ -114,26 +133,37 @@ public class UserInterface implements ActionListener{
 		@Override
 	      public void paintComponent(Graphics g) {
 	         super.paintComponent(g);
-
+	         
 	         //draw start point
-	         if(startPoint.x != 0 || startPoint.y != 0 ){
+	         if(startPoint.x >= 0 || startPoint.y >= 0 ){
+	        	 String message_start = "Start";
 	        	 g.setColor(Color.RED);
+	        	 g.drawString(message_start,startPoint.x+12,startPoint.y+12);
 	        	 g.fillRect(startPoint.x,startPoint.y,10,10);
 	        	 setStart = false;
 	         }
 	         
 	         //draw end point
-	         if(endPoint.x != 0 || endPoint.y != 0){
+	         if(endPoint.x >= 0 || endPoint.y >= 0){
+	        	 String message_end = "End";
 	        	 g.setColor(Color.BLUE);
+	        	 g.drawString(message_end, endPoint.x+12, endPoint.y+12);
 	        	 g.fillRect(endPoint.x, endPoint.y, 10, 10);
 	        	 setEnd = false;
 	         }
 	         
+	         //store the clicked point to draw a polygon
 	         if(pointClicked.size() != 0){
 	        	 g.setColor(Color.BLACK);
 	        	 for (int i = 0; i < pointClicked.size(); i++){
 	        		 g.fillRect(pointClicked.get(i).x, pointClicked.get(i).y, 5, 5);
 	        	 }    
+	         }
+	         
+	         if(polygons.size() != 0){
+	        	 for (int i = 0; i < polygons.size(); i++){
+	        		 g.drawPolygon(polygons.get(i));
+	        	 }
 	         }
 	      }	
 	}
