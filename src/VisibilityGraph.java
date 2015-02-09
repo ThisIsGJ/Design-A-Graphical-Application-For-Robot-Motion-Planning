@@ -1,0 +1,61 @@
+import java.awt.Point;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+
+public class VisibilityGraph {
+    
+    public ArrayList<Line2D> createVisibilityGraph(ArrayList<Point2D> polygonNodes,ArrayList<Line2D> polygonLines)
+    {
+            ArrayList<Line2D> vizLines = new ArrayList<Line2D>();
+                        
+            //Collect the edges of each polygon;
+            for (int i = 0; i < polygonNodes.size(); i++){
+            	for (int j = 0; j< polygonNodes.size(); j++){
+            		if(i != j){
+            			 Line2D.Double tempLine = new Line2D.Double(polygonNodes.get(i), polygonNodes.get(j));
+                         
+                         //check if this line intersects any of the grown obstacles
+                         boolean intersects = false;
+                         for(Line2D polyLine : polygonLines)
+                         {			
+                                 Point intersectP = intersection(tempLine,polyLine);
+                                 if(!polygonNodes.contains(intersectP) && intersectP != null){
+                                	 intersects = true;
+                                	 break;
+                                 } 
+                         }
+                         //if this line does NOT intersect any grown obstacles, add it to the visibility lines
+                         if(!intersects){
+                                 vizLines.add(tempLine);
+                         }
+            		}
+            	}
+            }
+            
+            return vizLines;
+    }
+    
+    //get the intersect points between two lines
+	public Point intersection(Line2D l1, Line2D l2) {
+		int x1 = (int) l1.getX1();
+		int x2 = (int) l1.getX2();
+		int y1 = (int) l1.getY1();
+		int y2 = (int) l1.getY2();
+		int x3 = (int) l2.getX1();
+		int x4 = (int) l2.getX2();
+		int y3 = (int) l2.getY1();
+		int y4 = (int) l2.getY2();
+	    int distance = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+	    if (distance == 0) return null;
+	    
+	    int xi = ((x3-x4)*(x1*y2-y1*x2)-(x1-x2)*(x3*y4-y3*x4))/distance;
+	    int yi = ((y3-y4)*(x1*y2-y1*x2)-(y1-y2)*(x3*y4-y3*x4))/distance;
+	    
+	    Point p = new Point(xi,yi);
+	    if (xi < Math.min(x1,x2) || xi > Math.max(x1,x2)) return null;
+	    if (xi < Math.min(x3,x4) || xi > Math.max(x3,x4)) return null;
+	    return p;
+	}
+    
+}

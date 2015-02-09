@@ -3,6 +3,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -10,6 +12,7 @@ import javax.swing.border.EtchedBorder;
 public class UserInterface implements ActionListener{
 	
 	private DrawPolygon DP;
+	private VisibilityGraph VG;
 	
 	private JFrame frame;
 	private Container contentPanel;
@@ -23,6 +26,10 @@ public class UserInterface implements ActionListener{
 	private Point endPoint;
 	
 	private ArrayList<Polygon> polygons;
+	private ArrayList<Point2D> polygonNodes;
+	private ArrayList<Line2D> visibilityLines;
+	private ArrayList<Line2D> polygonLines;
+	private boolean setVisibility = false;
 	
 	public UserInterface(){
 		frame = new JFrame("Robot Motion");
@@ -36,8 +43,13 @@ public class UserInterface implements ActionListener{
 		endPoint = new Point(-1,-1);
 		
 		MakeFrame();
+		
 		polygons = new ArrayList<Polygon>(); 
 		DP = new DrawPolygon();
+		VG = new VisibilityGraph();
+		polygonNodes = new ArrayList<Point2D>();
+		polygonLines = new ArrayList<Line2D>();
+		visibilityLines = new ArrayList<Line2D>();
 
 	}
 	
@@ -49,6 +61,7 @@ public class UserInterface implements ActionListener{
 		addButton(buttonPanel,"Start Point");
 		addButton(buttonPanel,"End Point");
 		addButton(buttonPanel,"Draw Shape");
+		addButton(buttonPanel,"<html>Visibility<br />Graph</html>");
 		addButton(buttonPanel,"Clean All");
 		addButton(buttonPanel,"Start");
 		
@@ -81,11 +94,24 @@ public class UserInterface implements ActionListener{
 			int xPoly[] = new int[30];
 			int yPoly[] = new int[30];
 			for (int i = 0; i < pointClicked.size(); i++){
+				//used to draw polygons
 				 xPoly[i] = pointClicked.get(i).x;
 				 yPoly[i] = pointClicked.get(i).y;
+				 //used to draw visibility graph
+				 polygonNodes.add(pointClicked.get(i));
+				 //collect the edges of each polygons
+				 if(i == pointClicked.size()-1){
+					 Line2D line = new Line2D.Double();
+					 line.setLine(pointClicked.get(i),pointClicked.get(0));
+					 polygonLines.add(line);
+				 }else{
+					 Line2D line = new Line2D.Double();
+					 line.setLine(pointClicked.get(i),pointClicked.get(i+1));
+					 polygonLines.add(line);
+				 }
 			}
-			int npoints = pointClicked.size();
-			Polygon Polygon = new Polygon(xPoly,yPoly,npoints);
+			
+			Polygon Polygon = new Polygon(xPoly,yPoly,pointClicked.size());
 			polygons.add(Polygon);   
 			pointClicked.clear();
 			robotPanel.repaint();
@@ -104,6 +130,16 @@ public class UserInterface implements ActionListener{
 			endPoint.x = -1;
 			pointClicked.clear();
 			polygons.clear();
+			visibilityLines.clear();
+			setVisibility = false;
+			polygonNodes.clear();
+			polygonLines.clear();
+			robotPanel.repaint();
+		}else if(choice == "<html>Visibility<br />Graph</html>"){
+			setVisibility = true;
+			polygonNodes.add(0, startPoint);
+            polygonNodes.add(endPoint);
+			visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines);
 			robotPanel.repaint();
 		}
 	}
@@ -160,13 +196,25 @@ public class UserInterface implements ActionListener{
 	        	 }    
 	         }
 	         
+	         if(setVisibility == true){
+	        	 for (Line2D l : visibilityLines){
+	        		 g.setColor(Color.GRAY);
+	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+	        	 }
+	         }
+
+	         
 	         if(polygons.size() != 0){
 	        	 for (int i = 0; i < polygons.size(); i++){
+	        		 g.setColor(Color.BLACK);
 	        		 g.drawPolygon(polygons.get(i));
+	        		 g.fillPolygon(polygons.get(i));
 	        	 }
 	         }
 	      }	
 	}
+	
+
 	
 }
 
@@ -175,12 +223,17 @@ public class UserInterface implements ActionListener{
 
 
 
-
-
-
-
-
-
+//Point point1 = new Point(10,10);
+//Point point2 = new Point(20,20);
+//Line2D line1 = new Line2D.Double();
+//line1.setLine(point1,point2);
+//
+//Point point3 = new Point(20,20);
+//Point point4 = new Point(30,10);
+//Line2D line2 = new Line2D.Double();
+//line2.setLine(point3,point4);
+//System.out.println("Thisi is is "+line1.intersectsLine(line2));
+//System.out.println("Thisi is is "+ intersection(10,10,20,20,19,19,30,30));
 
 
 
