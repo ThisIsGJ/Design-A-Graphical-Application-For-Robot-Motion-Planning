@@ -1,11 +1,13 @@
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public class VisibilityGraph {
     
-    public ArrayList<Line2D> createVisibilityGraph(ArrayList<Point2D> polygonNodes,ArrayList<Line2D> polygonLines)
+    public ArrayList<Line2D> createVisibilityGraph(ArrayList<Point2D> polygonNodes,ArrayList<Line2D> polygonLines,
+    												ArrayList<Polygon> polygons)
     {
             ArrayList<Line2D> vizLines = new ArrayList<Line2D>();
                         
@@ -23,7 +25,22 @@ public class VisibilityGraph {
                                  if(!polygonNodes.contains(intersectP) && intersectP != null){
                                 	 intersects = true;
                                 	 break;
-                                 } 
+                                 }
+                         }
+                         
+                         for(Polygon polygon : polygons)
+                         {
+                        	 int[] points_x = polygon.xpoints;
+                        	 int[] points_y = polygon.ypoints;
+                        	 ArrayList<Point2D> testPoints = new ArrayList<Point2D>();
+                        	 for(int pn = 0; pn < points_x.length;pn++){
+                        		 Point2D testP = new Point(points_x[pn],points_y[pn]);
+                        		 testPoints.add(testP);
+                        	 }
+                        	 if(testPoints.contains(tempLine.getP1()) && testPoints.contains(tempLine.getP2())){
+                        		 intersects = true;
+                        		 break;
+                        	 }
                          }
                          //if this line does NOT intersect any grown obstacles, add it to the visibility lines
                          if(!intersects){
@@ -33,6 +50,7 @@ public class VisibilityGraph {
             	}
             }
             
+            vizLines.addAll(polygonLines);
             return vizLines;
     }
     

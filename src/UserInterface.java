@@ -13,6 +13,7 @@ public class UserInterface implements ActionListener{
 	
 	private DrawPolygon DP;
 	private VisibilityGraph VG;
+	private FindShortestPath SP;
 	
 	private JFrame frame;
 	private Container contentPanel;
@@ -30,6 +31,7 @@ public class UserInterface implements ActionListener{
 	private ArrayList<Line2D> visibilityLines;
 	private ArrayList<Line2D> polygonLines;
 	private boolean setVisibility = false;
+	private ArrayList<Point2D> shortestPath;
 	
 	public UserInterface(){
 		frame = new JFrame("Robot Motion");
@@ -47,10 +49,11 @@ public class UserInterface implements ActionListener{
 		polygons = new ArrayList<Polygon>(); 
 		DP = new DrawPolygon();
 		VG = new VisibilityGraph();
+		SP = new FindShortestPath();
 		polygonNodes = new ArrayList<Point2D>();
 		polygonLines = new ArrayList<Line2D>();
 		visibilityLines = new ArrayList<Line2D>();
-
+		shortestPath = new ArrayList<Point2D>();
 	}
 	
 	private void MakeFrame(){
@@ -134,12 +137,21 @@ public class UserInterface implements ActionListener{
 			setVisibility = false;
 			polygonNodes.clear();
 			polygonLines.clear();
+			shortestPath.clear();
 			robotPanel.repaint();
 		}else if(choice == "<html>Visibility<br />Graph</html>"){
 			setVisibility = true;
+			if(startPoint.x == -1 ){
+				JOptionPane.showMessageDialog(frame, "Please set the Start point.");
+				setVisibility = false;
+			}else if(endPoint.x == -1){
+				JOptionPane.showMessageDialog(frame, "Please set the End point.");
+				setVisibility = false;
+			}
 			polygonNodes.add(0, startPoint);
             polygonNodes.add(endPoint);
-			visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines);
+			visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
+			shortestPath = SP.DijkstraAlgorithm(polygonNodes);
 			robotPanel.repaint();
 		}
 	}
@@ -202,7 +214,7 @@ public class UserInterface implements ActionListener{
 	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
 	        	 }
 	         }
-
+	         
 	         
 	         if(polygons.size() != 0){
 	        	 for (int i = 0; i < polygons.size(); i++){
@@ -211,6 +223,16 @@ public class UserInterface implements ActionListener{
 	        		 g.fillPolygon(polygons.get(i));
 	        	 }
 	         }
+	         
+	         
+	         
+//	         int x[] = {10,10,300,300};
+//			 int y[] = {10,300,280,10};
+//	         Polygon test = new Polygon(x,y,4);
+//	         g.drawPolygon(test);
+//	         Point2D pp = new Point(300,300);
+//	         System.out.println(test.xpoints);
+	         
 	      }	
 	}
 	
@@ -221,19 +243,6 @@ public class UserInterface implements ActionListener{
 
 
 
-
-
-//Point point1 = new Point(10,10);
-//Point point2 = new Point(20,20);
-//Line2D line1 = new Line2D.Double();
-//line1.setLine(point1,point2);
-//
-//Point point3 = new Point(20,20);
-//Point point4 = new Point(30,10);
-//Line2D line2 = new Line2D.Double();
-//line2.setLine(point3,point4);
-//System.out.println("Thisi is is "+line1.intersectsLine(line2));
-//System.out.println("Thisi is is "+ intersection(10,10,20,20,19,19,30,30));
 
 
 
