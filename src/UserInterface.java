@@ -31,7 +31,7 @@ public class UserInterface implements ActionListener{
 	private ArrayList<Line2D> visibilityLines;
 	private ArrayList<Line2D> polygonLines;
 	private boolean setVisibility = false;
-	private ArrayList<Point2D> shortestPath;
+	private ArrayList<Line2D> shortestPath;
 	
 	public UserInterface(){
 		frame = new JFrame("Robot Motion");
@@ -53,7 +53,7 @@ public class UserInterface implements ActionListener{
 		polygonNodes = new ArrayList<Point2D>();
 		polygonLines = new ArrayList<Line2D>();
 		visibilityLines = new ArrayList<Line2D>();
-		shortestPath = new ArrayList<Point2D>();
+		shortestPath = new ArrayList<Line2D>();
 	}
 	
 	private void MakeFrame(){
@@ -140,6 +140,7 @@ public class UserInterface implements ActionListener{
 			shortestPath.clear();
 			robotPanel.repaint();
 		}else if(choice == "<html>Visibility<br />Graph</html>"){
+			//show visibility graph
 			setVisibility = true;
 			if(startPoint.x == -1 ){
 				JOptionPane.showMessageDialog(frame, "Please set the Start point.");
@@ -151,7 +152,9 @@ public class UserInterface implements ActionListener{
 			polygonNodes.add(0, startPoint);
             polygonNodes.add(endPoint);
 			visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
-			shortestPath = SP.DijkstraAlgorithm(polygonNodes);
+			
+			//find the shortestPath
+			shortestPath = SP.DijkstraAlgorithm(visibilityLines,startPoint,endPoint);
 			robotPanel.repaint();
 		}
 	}
@@ -213,6 +216,11 @@ public class UserInterface implements ActionListener{
 	        		 g.setColor(Color.GRAY);
 	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
 	        	 }
+	        	 
+	        	 for (Line2D l : shortestPath){
+	        		 g.setColor(Color.BLACK);
+	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+	        	 }
 	         }
 	         
 	         
@@ -223,6 +231,20 @@ public class UserInterface implements ActionListener{
 	        		 g.fillPolygon(polygons.get(i));
 	        	 }
 	         }
+	         
+//	         Line2D l1 = new Line2D.Double();
+//			 l1.setLine(new Point(1,1),new Point(2,2));
+//	         Line2D l2 = new Line2D.Double();
+//	         l2.setLine(new Point(4,4),new Point(6,6));
+//	         Line2D l3 = new Line2D.Double();
+//	         l3.setLine(new Point(6,6),new Point(4,4));
+//	         ArrayList<Line2D> testl = new ArrayList<Line2D>();
+//	         testl.add(l2);
+//	         testl.add(l1);
+//	         System.out.println(testl.contains(l2));
+	         
+	         
+	         
 	         
 	         
 	         

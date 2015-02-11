@@ -16,8 +16,7 @@ public class VisibilityGraph {
             	for (int j = 0; j< polygonNodes.size(); j++){
             		if(i != j){
             			 Line2D.Double tempLine = new Line2D.Double(polygonNodes.get(i), polygonNodes.get(j));
-                         
-                         //check if this line intersects any of the grown obstacles
+            				  //check if this line intersects any of the grown obstacles
                          boolean intersects = false;
                          for(Line2D polyLine : polygonLines)
                          {			
@@ -49,8 +48,13 @@ public class VisibilityGraph {
             		}
             	}
             }
-            
+           
             vizLines.addAll(polygonLines);
+//            for(Line2D l : polygonLines){
+//            	Line2D ll = new Line2D.Double();
+//	         	ll.setLine(l.getP2(),l.getP1());
+//	         	vizLines.add(ll);
+//            }
             return vizLines;
     }
     
