@@ -30,8 +30,14 @@ public class UserInterface implements ActionListener{
 	private ArrayList<Point2D> polygonNodes;
 	private ArrayList<Line2D> visibilityLines;
 	private ArrayList<Line2D> polygonLines;
-	private boolean setVisibility = false;
+	private boolean setVisibility;
+	private boolean showShortestPath;
 	private ArrayList<Line2D> shortestPath;
+	
+	private boolean circleRobot = false;
+	private boolean pointRobot = true;
+	//the radius of circle robot 
+	private final int circleRobotR = 20;
 	
 	public UserInterface(){
 		frame = new JFrame("Robot Motion");
@@ -43,6 +49,8 @@ public class UserInterface implements ActionListener{
 		setEnd = false;
 		startPoint = new Point(-1,-1);
 		endPoint = new Point(-1,-1);
+		setVisibility = false;
+		showShortestPath = false;
 		
 		MakeFrame();
 		
@@ -65,6 +73,7 @@ public class UserInterface implements ActionListener{
 		addButton(buttonPanel,"End Point");
 		addButton(buttonPanel,"Draw Shape");
 		addButton(buttonPanel,"<html>Visibility<br />Graph</html>");
+		addButton(buttonPanel,"<html>Shortest Path</html>");
 		addButton(buttonPanel,"Clean All");
 		addButton(buttonPanel,"Start");
 		
@@ -93,70 +102,92 @@ public class UserInterface implements ActionListener{
 		String choice = e.getActionCommand();
 		//draw convex hull
 		if(choice == "Draw Shape"){
-			pointClicked = DP.QuickHull(pointClicked);
-			int xPoly[] = new int[30];
-			int yPoly[] = new int[30];
-			for (int i = 0; i < pointClicked.size(); i++){
-				//used to draw polygons
-				 xPoly[i] = pointClicked.get(i).x;
-				 yPoly[i] = pointClicked.get(i).y;
-				 //used to draw visibility graph
-				 polygonNodes.add(pointClicked.get(i));
-				 //collect the edges of each polygons
-				 if(i == pointClicked.size()-1){
-					 Line2D line = new Line2D.Double();
-					 line.setLine(pointClicked.get(i),pointClicked.get(0));
-					 polygonLines.add(line);
-				 }else{
-					 Line2D line = new Line2D.Double();
-					 line.setLine(pointClicked.get(i),pointClicked.get(i+1));
-					 polygonLines.add(line);
-				 }
-			}
-			
-			Polygon Polygon = new Polygon(xPoly,yPoly,pointClicked.size());
-			polygons.add(Polygon);   
-			pointClicked.clear();
-			robotPanel.repaint();
+			drawShape();
 		}else if(choice == "Start Point"){
 			setStart = true;
 			setEnd = false;
 		}else if(choice == "End Point"){
 			setEnd = true;
 			setStart = false;
+		}else if(choice == "<html>Shortest Path</html>"){
+
+			if(showShortestPath)showShortestPath = false;
+					else showShortestPath = true;
+			robotPanel.repaint();
 		}else if(choice == "Clean All"){
-			setStart = false;
-			setEnd = false;
-			startPoint.x = -1;
-			startPoint.y = -1;
-			endPoint.y = -1;
-			endPoint.x = -1;
-			pointClicked.clear();
-			polygons.clear();
-			visibilityLines.clear();
-			setVisibility = false;
-			polygonNodes.clear();
-			polygonLines.clear();
-			shortestPath.clear();
-			robotPanel.repaint();
+			cleanAll();
 		}else if(choice == "<html>Visibility<br />Graph</html>"){
-			//show visibility graph
-			setVisibility = true;
-			if(startPoint.x == -1 ){
-				JOptionPane.showMessageDialog(frame, "Please set the Start point.");
-				setVisibility = false;
-			}else if(endPoint.x == -1){
-				JOptionPane.showMessageDialog(frame, "Please set the End point.");
-				setVisibility = false;
-			}
-			polygonNodes.add(0, startPoint);
-            polygonNodes.add(endPoint);
-			visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
-			
-			//find the shortestPath
-			shortestPath = SP.DijkstraAlgorithm(visibilityLines,startPoint,endPoint);
-			robotPanel.repaint();
+			showVG();
 		}
+	}
+	
+	private void drawShape(){
+		pointClicked = DP.QuickHull(pointClicked);
+		int xPoly[] = new int[30];
+		int yPoly[] = new int[30];
+		for (int i = 0; i < pointClicked.size(); i++){
+			//used to draw polygons
+			 xPoly[i] = pointClicked.get(i).x;
+			 yPoly[i] = pointClicked.get(i).y;
+			 //used to draw visibility graph
+			 polygonNodes.add(pointClicked.get(i));
+			 //collect the edges of each polygons
+			 if(i == pointClicked.size()-1){
+				 Line2D line = new Line2D.Double();
+				 line.setLine(pointClicked.get(i),pointClicked.get(0));
+				 polygonLines.add(line);
+			 }else{
+				 Line2D line = new Line2D.Double();
+				 line.setLine(pointClicked.get(i),pointClicked.get(i+1));
+				 polygonLines.add(line);
+			 }
+		}
+		
+		Polygon Polygon = new Polygon(xPoly,yPoly,pointClicked.size());
+		polygons.add(Polygon);   
+		pointClicked.clear();
+		robotPanel.repaint();
+	}
+	
+	private void cleanAll(){
+		setStart = false;
+		setEnd = false;
+		startPoint.x = -1;
+		startPoint.y = -1;
+		endPoint.y = -1;
+		endPoint.x = -1;
+		pointClicked.clear();
+		polygons.clear();
+		visibilityLines.clear();
+		polygonNodes.clear();
+		polygonLines.clear();
+		shortestPath.clear();
+		robotPanel.repaint();
+	}
+	
+	private void showVG(){
+		//show visibility graph
+		setVisibility = true;
+		if(startPoint.x == -1 ){
+			JOptionPane.showMessageDialog(frame, "Please set the Start point.");
+			setVisibility = false;
+		}else if(endPoint.x == -1){
+			JOptionPane.showMessageDialog(frame, "Please set the End point.");
+			setVisibility = false;
+		}
+		polygonNodes.add(0, startPoint);
+        polygonNodes.add(endPoint);
+        
+        if(pointRobot){
+        	visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
+        }else if(circleRobot){
+        	
+        	visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
+        }
+        
+		//find the shortestPath
+		shortestPath = SP.DijkstraAlgorithm(visibilityLines,startPoint,endPoint);
+		robotPanel.repaint();
 	}
 	
 	class DrawCanvas extends JPanel{
@@ -197,7 +228,7 @@ public class UserInterface implements ActionListener{
 	         //draw end point
 	         if(endPoint.x >= 0 || endPoint.y >= 0){
 	        	 String message_end = "End";
-	        	 g.setColor(Color.BLUE);
+	        	 g.setColor(Color.RED);
 	        	 g.drawString(message_end, endPoint.x+12, endPoint.y+12);
 	        	 g.fillRect(endPoint.x, endPoint.y, 10, 10);
 	        	 setEnd = false;
@@ -211,18 +242,19 @@ public class UserInterface implements ActionListener{
 	        	 }    
 	         }
 	         
-	         if(setVisibility == true){
+	         if(setVisibility){
 	        	 for (Line2D l : visibilityLines){
 	        		 g.setColor(Color.GRAY);
 	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
 	        	 }
-	        	 
+	         }
+	         
+	         if(showShortestPath && shortestPath.size() != 0){
 	        	 for (Line2D l : shortestPath){
-	        		 g.setColor(Color.BLACK);
+	        		 g.setColor(Color.BLUE);
 	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
 	        	 }
 	         }
-	         
 	         
 	         if(polygons.size() != 0){
 	        	 for (int i = 0; i < polygons.size(); i++){
@@ -231,29 +263,6 @@ public class UserInterface implements ActionListener{
 	        		 g.fillPolygon(polygons.get(i));
 	        	 }
 	         }
-	         
-//	         Line2D l1 = new Line2D.Double();
-//			 l1.setLine(new Point(1,1),new Point(2,2));
-//	         Line2D l2 = new Line2D.Double();
-//	         l2.setLine(new Point(4,4),new Point(6,6));
-//	         Line2D l3 = new Line2D.Double();
-//	         l3.setLine(new Point(6,6),new Point(4,4));
-//	         ArrayList<Line2D> testl = new ArrayList<Line2D>();
-//	         testl.add(l2);
-//	         testl.add(l1);
-//	         System.out.println(testl.contains(l2));
-	         
-	         
-	         
-	         
-	         
-	         
-//	         int x[] = {10,10,300,300};
-//			 int y[] = {10,300,280,10};
-//	         Polygon test = new Polygon(x,y,4);
-//	         g.drawPolygon(test);
-//	         Point2D pp = new Point(300,300);
-//	         System.out.println(test.xpoints);
 	         
 	      }	
 	}

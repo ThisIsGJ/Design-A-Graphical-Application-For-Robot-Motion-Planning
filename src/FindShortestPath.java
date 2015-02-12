@@ -1,5 +1,3 @@
-import java.awt.List;
-import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -8,7 +6,7 @@ import java.util.Collections;
 
 public class FindShortestPath {
 
-	 public static ArrayList<Line2D> DijkstraAlgorithm(ArrayList<Line2D> vizGraph,Point2D start, Point2D goal)
+	 public ArrayList<Line2D> DijkstraAlgorithm(ArrayList<Line2D> vizGraph,Point2D start, Point2D goal)
      {       
              //create the initial list of graph nodes and where they can reach
              ArrayList<GraphNode> nodes = new ArrayList<GraphNode>();
@@ -101,7 +99,7 @@ public class FindShortestPath {
      }
 	
 	
-	 private static void createGraphNode(ArrayList<Line2D> vizGraph,
+	 private void createGraphNode(ArrayList<Line2D> vizGraph,
              ArrayList<GraphNode> nodes, Point2D p1, Point2D start, Point2D goal) {
      
      //make sure that the list of graph nodes does not already contain p1 
@@ -134,7 +132,7 @@ public class FindShortestPath {
 		 }
 	 }
 	 
-     private static class GraphNode
+     private class GraphNode
      {
              public Point2D point;
              public ArrayList<Point2D> reachables;
@@ -164,7 +162,7 @@ public class FindShortestPath {
              }
      }
      
-     private static boolean graphNodeContains(ArrayList<GraphNode> nodes, Point2D p)
+     private boolean graphNodeContains(ArrayList<GraphNode> nodes, Point2D p)
      {
              for(GraphNode n : nodes)
              {
@@ -175,7 +173,7 @@ public class FindShortestPath {
              return false;
      }
      
-     private static int findStartEndNode(ArrayList<GraphNode> nodes, Point2D start_goal)
+     private int findStartEndNode(ArrayList<GraphNode> nodes, Point2D start_goal)
      {
              int index = 0;
              for(GraphNode gn : nodes)
@@ -189,7 +187,7 @@ public class FindShortestPath {
              return -1;
      }
      
-     private static GraphNode findNextCurNode(ArrayList<GraphNode> nodes)
+     private GraphNode findNextCurNode(ArrayList<GraphNode> nodes)
      {
              double smallestDist = Double.MAX_VALUE;
              GraphNode next = null;

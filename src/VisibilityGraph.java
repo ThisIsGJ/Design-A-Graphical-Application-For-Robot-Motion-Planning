@@ -16,7 +16,9 @@ public class VisibilityGraph {
             	for (int j = 0; j< polygonNodes.size(); j++){
             		if(i != j){
             			 Line2D.Double tempLine = new Line2D.Double(polygonNodes.get(i), polygonNodes.get(j));
-            				  //check if this line intersects any of the grown obstacles
+            			 
+            			 //check if this line intersects any of the grown polygon
+            			 //step 1: if the intersect point is not the vertex of the polygon, then the line intersect the polygon  
                          boolean intersects = false;
                          for(Line2D polyLine : polygonLines)
                          {			
@@ -26,7 +28,8 @@ public class VisibilityGraph {
                                 	 break;
                                  }
                          }
-                         
+                         // step 2: if the line's point1 and point2 is located at polygon vertex, then it is inside the polygon
+                         // so set intersect true
                          for(Polygon polygon : polygons)
                          {
                         	 int[] points_x = polygon.xpoints;
@@ -41,7 +44,7 @@ public class VisibilityGraph {
                         		 break;
                         	 }
                          }
-                         //if this line does NOT intersect any grown obstacles, add it to the visibility lines
+                         //if this line does NOT intersect any grown polygon, add it to the visibility lines
                          if(!intersects){
                                  vizLines.add(tempLine);
                          }
@@ -50,11 +53,6 @@ public class VisibilityGraph {
             }
            
             vizLines.addAll(polygonLines);
-//            for(Line2D l : polygonLines){
-//            	Line2D ll = new Line2D.Double();
-//	         	ll.setLine(l.getP2(),l.getP1());
-//	         	vizLines.add(ll);
-//            }
             return vizLines;
     }
     
@@ -79,5 +77,5 @@ public class VisibilityGraph {
 	    if (xi < Math.min(x3,x4) || xi > Math.max(x3,x4)) return null;
 	    return p;
 	}
-    
+	
 }
