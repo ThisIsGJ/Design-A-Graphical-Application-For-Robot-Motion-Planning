@@ -128,8 +128,9 @@ public class DrawPolygon{
 		  }
 		  
 		  for(int i = 0; i < growPoints1.size();i++){
-			  growPoints.add(growPoints1.get(i));
-			  growPoints.add(growPoints2.get(growPoints.size()-1-i));
+			  growPoints.add(growPoints2.get(i));
+			  growPoints.add(growPoints1.get(growPoints1.size()-1-i));
+//			  growPoints.add(growPoints2.get(i));
 		  }
 		  
 		  return growPoints;

@@ -127,7 +127,7 @@ public class UserInterface implements ActionListener{
 		pointClicked = DP.QuickHull(pointClicked);
 		
 		if(circleRobot){
-			testPoints = DP.growPolygon(pointClicked,circleRobotR);
+			pointClicked = DP.growPolygon(pointClicked,circleRobotR);
 		}
 		
 		int xPoly[] = new int[30];
@@ -272,13 +272,12 @@ public class UserInterface implements ActionListener{
 	        		 g.drawPolygon(polygons.get(i));
 	        		 g.fillPolygon(polygons.get(i));
 	        	 }
-	        	 
-//	        	 testPoints = DP.growPolygon(pointClicked,circleRobotR);
-	        	 System.out.println(testPoints.size());
-	        	 for(Point p : testPoints){
-	        		 g.setColor(Color.RED);
-	        		 g.fillOval(p.x, p.y, 5, 5);
-	        	 }
+
+//	        	 for(int i = 0; i < testPoints.size();i++){
+//	        		 g.setColor(Color.BLUE);
+//	        		 g.drawString(Integer.toString(i),testPoints.get(i).x, testPoints.get(i).y);
+//	        		 g.fillOval(testPoints.get(i).x, testPoints.get(i).y, 5, 5);
+//	        	 }
 	         }
 	         
 	      }	
