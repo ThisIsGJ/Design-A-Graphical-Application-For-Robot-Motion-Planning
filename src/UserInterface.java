@@ -33,8 +33,9 @@ public class UserInterface implements ActionListener{
 	private boolean setVisibility;
 	private boolean showShortestPath;
 	private ArrayList<Line2D> shortestPath;
+	private ArrayList<Point> testPoints;
 	
-	private boolean circleRobot = false;
+	private boolean circleRobot = true;
 	private boolean pointRobot = true;
 	//the radius of circle robot 
 	private final int circleRobotR = 20;
@@ -122,7 +123,13 @@ public class UserInterface implements ActionListener{
 	}
 	
 	private void drawShape(){
+		
 		pointClicked = DP.QuickHull(pointClicked);
+		
+		if(circleRobot){
+			testPoints = DP.growPolygon(pointClicked,circleRobotR);
+		}
+		
 		int xPoly[] = new int[30];
 		int yPoly[] = new int[30];
 		for (int i = 0; i < pointClicked.size(); i++){
@@ -238,17 +245,19 @@ public class UserInterface implements ActionListener{
 	         if(pointClicked.size() != 0){
 	        	 g.setColor(Color.BLACK);
 	        	 for (int i = 0; i < pointClicked.size(); i++){
-	        		 g.fillRect(pointClicked.get(i).x, pointClicked.get(i).y, 5, 5);
+	        		 g.fillRect(pointClicked.get(i).x-2, pointClicked.get(i).y-2, 4, 4);
 	        	 }    
 	         }
 	         
+	         //draw visibility lines
 	         if(setVisibility){
 	        	 for (Line2D l : visibilityLines){
 	        		 g.setColor(Color.GRAY);
 	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
 	        	 }
 	         }
-	         
+
+	         //show shortest point
 	         if(showShortestPath && shortestPath.size() != 0){
 	        	 for (Line2D l : shortestPath){
 	        		 g.setColor(Color.BLUE);
@@ -256,11 +265,19 @@ public class UserInterface implements ActionListener{
 	        	 }
 	         }
 	         
+	         //draw polygons
 	         if(polygons.size() != 0){
 	        	 for (int i = 0; i < polygons.size(); i++){
 	        		 g.setColor(Color.BLACK);
 	        		 g.drawPolygon(polygons.get(i));
 	        		 g.fillPolygon(polygons.get(i));
+	        	 }
+	        	 
+//	        	 testPoints = DP.growPolygon(pointClicked,circleRobotR);
+	        	 System.out.println(testPoints.size());
+	        	 for(Point p : testPoints){
+	        		 g.setColor(Color.RED);
+	        		 g.fillOval(p.x, p.y, 5, 5);
 	        	 }
 	         }
 	         
