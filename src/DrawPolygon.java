@@ -1,4 +1,5 @@
 import java.awt.Point;
+import java.awt.Polygon;
 import java.util.ArrayList;
 
 
@@ -111,40 +112,65 @@ public class DrawPolygon{
 		    return num;
 	  }   
 	  
-	  public ArrayList<Point> growPolygon(ArrayList<Point> Points,int circleRobotR){
-		  ArrayList<Point> growPoints1 = new ArrayList<Point>();
-		  ArrayList<Point> growPoints2 = new ArrayList<Point>();
+	  
+// second try	  
+	  public ArrayList<Point> growPolygon(ArrayList<Point> Points, int circleRobotR){
 		  ArrayList<Point> growPoints = new ArrayList<Point>();
-		  
-		  growPoints1.add(getGrowPoint(Points.get(Points.size()-1),Points.get(0),circleRobotR));
-		  for(int i = 0; i < Points.size()-1; i++){
-			  growPoints1.add(getGrowPoint(Points.get(i),Points.get(i+1),circleRobotR));
+		  for(int i = 0; i < Points.size()-1;i++){
+			  growPoints.add(getGrowPoint(Points.get(i),Points.get(i+1),circleRobotR,1)); 
+			  growPoints.add(getGrowPoint(Points.get(i+1),Points.get(i),circleRobotR,-1));
 		  }
-		  
-		  growPoints2.add(getGrowPoint(Points.get(1),Points.get(0),circleRobotR));
-		  growPoints2.add(getGrowPoint(Points.get(0),Points.get(Points.size()-1),circleRobotR));
-		  for(int i = Points.size()-1; i > 1; i--){
-			  growPoints2.add(getGrowPoint(Points.get(i),Points.get(i-1),circleRobotR));
-		  }
-		  
-		  for(int i = 0; i < growPoints1.size();i++){
-			  growPoints.add(growPoints2.get(i));
-			  growPoints.add(growPoints1.get(growPoints1.size()-1-i));
-//			  growPoints.add(growPoints2.get(i));
-		  }
+		  growPoints.add(getGrowPoint(Points.get(Points.size()-1),Points.get(0),circleRobotR,1));
+		  growPoints.add(getGrowPoint(Points.get(0),Points.get(Points.size()-1),circleRobotR,-1));
 		  
 		  return growPoints;
 	  }
 	  
-	  private Point getGrowPoint(Point p1, Point p2,int circleRobotR){
+	  private Point getGrowPoint(Point p1, Point p2,int r,int testSide){
+		  Point growP = null;
+		  Boolean Perpendicular;
 		  int x1 = p1.x;
 		  int x2 = p2.x;
 		  int y1 = p1.y;
 		  int y2 = p2.y;
-		  Double b = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-		  int newX = (int) (((x2-x1)*(circleRobotR+b)/b)+x1);
-		  int newY = (int) (((y2-y1)*(circleRobotR+b)/b)+y1);
-		  return new Point(newX, newY);
+		  //p1 - p2 distance
+		  Double distance = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+		  double sin = Math.abs(x1-x2)/ distance;
+		  double cos = Math.abs(y1-y2)/ distance;
+		  
+		  Double newX,newY;
+		  newX = (x1-r*cos);
+		  newY = (y1+r*sin);
+		  
+		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
+		  // testSide used to test which side the point is, -1 is at right of the line, 1 is left of the line
+		  //perpendicular is used to test if the the point line is perpendicular of the line
+		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
+			  growP = new Point(newX.intValue(),newY.intValue());
+		  
+		  newX = (x1+r*cos);
+		  newY = (y1+r*sin);
+		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
+		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
+			  growP = new Point(newX.intValue(),newY.intValue());
+		  
+		  newX = (x1+r*cos);
+		  newY = (y1-r*sin);
+		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
+		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
+			  growP = new Point(newX.intValue(),newY.intValue());
+		  
+		  newX = (x1-r*cos);
+		  newY = (y1-r*sin);
+		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
+		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular) 
+			  growP = new Point(newX.intValue(),newY.intValue());
+		  
+		  return growP;
 	  }
 	  
 }

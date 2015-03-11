@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class VisibilityGraph {
     
-    public ArrayList<Line2D> createVisibilityGraph(ArrayList<Point2D> polygonNodes,ArrayList<Line2D> polygonLines,
+    public ArrayList<Line2D> createVisibilityGraph(ArrayList<Point> polygonNodes,ArrayList<Line2D> polygonLines,
     												ArrayList<Polygon> polygons)
     {
             ArrayList<Line2D> vizLines = new ArrayList<Line2D>();

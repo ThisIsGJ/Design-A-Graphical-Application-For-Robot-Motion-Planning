@@ -4,7 +4,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -20,6 +19,7 @@ public class UserInterface implements ActionListener{
 	private JPanel buttonPanel;
 	private DrawCanvas robotPanel;
 	private ArrayList<Point> pointClicked;
+	private ArrayList<Point> growpointClicked;
 	
 	private Boolean setStart;
 	private Boolean setEnd;
@@ -27,18 +27,22 @@ public class UserInterface implements ActionListener{
 	private Point endPoint;
 	
 	private ArrayList<Polygon> polygons;
-	private ArrayList<Point2D> polygonNodes;
-	private ArrayList<Line2D> visibilityLines;
+	private ArrayList<Polygon> growpolygons;
+	private ArrayList<Point> polygonNodes;
+	private ArrayList<Point> growNodes;
 	private ArrayList<Line2D> polygonLines;
+	private ArrayList<Line2D> growLines;
+	private ArrayList<Line2D> visibilityLines;
+	private ArrayList<Line2D> growvisibilityLines;
 	private boolean setVisibility;
 	private boolean showShortestPath;
 	private ArrayList<Line2D> shortestPath;
-	private ArrayList<Point> testPoints;
+	private ArrayList<Line2D> growshortestPath;
 	
-	private boolean circleRobot = true;
+	private boolean circleRobot = false;
 	private boolean pointRobot = true;
 	//the radius of circle robot 
-	private final int circleRobotR = 20;
+	private final int circleRobotR = 30;
 	
 	public UserInterface(){
 		frame = new JFrame("Robot Motion");
@@ -46,6 +50,7 @@ public class UserInterface implements ActionListener{
 		buttonPanel = new JPanel();
 		robotPanel = new DrawCanvas();
 		pointClicked = new ArrayList<Point>();
+		growpointClicked = new ArrayList<Point>();
 		setStart = false;
 		setEnd = false;
 		startPoint = new Point(-1,-1);
@@ -55,14 +60,20 @@ public class UserInterface implements ActionListener{
 		
 		MakeFrame();
 		
-		polygons = new ArrayList<Polygon>(); 
 		DP = new DrawPolygon();
 		VG = new VisibilityGraph();
 		SP = new FindShortestPath();
-		polygonNodes = new ArrayList<Point2D>();
+		polygons = new ArrayList<Polygon>(); 
+		growpolygons = new ArrayList<Polygon>(); 
+		polygonNodes = new ArrayList<Point>();
 		polygonLines = new ArrayList<Line2D>();
+		growNodes = new ArrayList<Point>();
+		polygonLines = new ArrayList<Line2D>();
+		growLines = new ArrayList<Line2D>();
 		visibilityLines = new ArrayList<Line2D>();
+		growvisibilityLines = new  ArrayList<Line2D>();
 		shortestPath = new ArrayList<Line2D>();
+		growshortestPath = new ArrayList<Line2D>();
 	}
 	
 	private void MakeFrame(){
@@ -70,9 +81,11 @@ public class UserInterface implements ActionListener{
 		
 		//build buttonPanel
 		buttonPanel.setLayout(new GridLayout(15,1));
+		addButton(buttonPanel,"Point Robot");
+		addButton(buttonPanel,"Circle Robot");
 		addButton(buttonPanel,"Start Point");
 		addButton(buttonPanel,"End Point");
-		addButton(buttonPanel,"Draw Shape");
+		addButton(buttonPanel,"<html>Draw<br />Abstacles</html>");
 		addButton(buttonPanel,"<html>Visibility<br />Graph</html>");
 		addButton(buttonPanel,"<html>Shortest Path</html>");
 		addButton(buttonPanel,"Clean All");
@@ -102,7 +115,7 @@ public class UserInterface implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		String choice = e.getActionCommand();
 		//draw convex hull
-		if(choice == "Draw Shape"){
+		if(choice == "<html>Draw<br />Abstacles</html>"){
 			drawShape();
 		}else if(choice == "Start Point"){
 			setStart = true;
@@ -111,7 +124,6 @@ public class UserInterface implements ActionListener{
 			setEnd = true;
 			setStart = false;
 		}else if(choice == "<html>Shortest Path</html>"){
-
 			if(showShortestPath)showShortestPath = false;
 					else showShortestPath = true;
 			robotPanel.repaint();
@@ -119,42 +131,58 @@ public class UserInterface implements ActionListener{
 			cleanAll();
 		}else if(choice == "<html>Visibility<br />Graph</html>"){
 			showVG();
+		}else if(choice == "Point Robot"){
+			circleRobot = false;
+			pointRobot = true;
+		}else if(choice == "Circle Robot"){
+			circleRobot = true;
+			pointRobot = false;
 		}
+		robotPanel.repaint();
 	}
 	
 	private void drawShape(){
 		
+		//for point circle
 		pointClicked = DP.QuickHull(pointClicked);
+		polygons.add(creatPolygon(pointClicked,polygonLines,polygonNodes));   
 		
-		if(circleRobot){
-			pointClicked = DP.growPolygon(pointClicked,circleRobotR);
-		}
+		//for circle robot - grow the nodes
+		growpointClicked = DP.growPolygon(pointClicked,circleRobotR);
+		//get growing polygon
+		growpolygons.add(creatPolygon(growpointClicked,growLines,growNodes));
 		
+		pointClicked.clear();
+//		growpointClicked.clear();
+//		robotPanel.repaint();
+	}
+	
+	
+	private Polygon creatPolygon(ArrayList<Point> points, ArrayList<Line2D> lines,ArrayList<Point> nodes){
 		int xPoly[] = new int[30];
 		int yPoly[] = new int[30];
-		for (int i = 0; i < pointClicked.size(); i++){
+		for (int i = 0; i < points.size(); i++){
 			//used to draw polygons
-			 xPoly[i] = pointClicked.get(i).x;
-			 yPoly[i] = pointClicked.get(i).y;
+			 xPoly[i] = points.get(i).x;
+			 yPoly[i] = points.get(i).y;
 			 //used to draw visibility graph
-			 polygonNodes.add(pointClicked.get(i));
+			 nodes.add(points.get(i));
 			 //collect the edges of each polygons
-			 if(i == pointClicked.size()-1){
+			 if(i == points.size()-1){
 				 Line2D line = new Line2D.Double();
-				 line.setLine(pointClicked.get(i),pointClicked.get(0));
-				 polygonLines.add(line);
+				 line.setLine(points.get(i),points.get(0));
+				 lines.add(line);
 			 }else{
 				 Line2D line = new Line2D.Double();
-				 line.setLine(pointClicked.get(i),pointClicked.get(i+1));
-				 polygonLines.add(line);
+				 line.setLine(points.get(i),points.get(i+1));
+				 lines.add(line);
 			 }
 		}
 		
-		Polygon Polygon = new Polygon(xPoly,yPoly,pointClicked.size());
-		polygons.add(Polygon);   
-		pointClicked.clear();
-		robotPanel.repaint();
+		return new Polygon(xPoly,yPoly,points.size());
 	}
+	
+	
 	
 	private void cleanAll(){
 		setStart = false;
@@ -169,7 +197,15 @@ public class UserInterface implements ActionListener{
 		polygonNodes.clear();
 		polygonLines.clear();
 		shortestPath.clear();
-		robotPanel.repaint();
+		
+		growpointClicked.clear();
+		growpolygons.clear();
+		growvisibilityLines.clear();
+		growNodes.clear();
+		growLines.clear();
+		growshortestPath.clear();
+		
+//		robotPanel.repaint();
 	}
 	
 	private void showVG(){
@@ -182,19 +218,23 @@ public class UserInterface implements ActionListener{
 			JOptionPane.showMessageDialog(frame, "Please set the End point.");
 			setVisibility = false;
 		}
+		
+		// for point robot
 		polygonNodes.add(0, startPoint);
         polygonNodes.add(endPoint);
+        visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
+        shortestPath = SP.DijkstraAlgorithm(visibilityLines,startPoint,endPoint);
         
-        if(pointRobot){
-        	visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
-        }else if(circleRobot){
-        	
-        	visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
-        }
+        //for circle robot
+        growNodes.add(0, startPoint);
+	    growNodes.add(endPoint);
+        growvisibilityLines = VG.createVisibilityGraph(growNodes,growLines,growpolygons);
+        growshortestPath = SP.DijkstraAlgorithm(growvisibilityLines, startPoint, endPoint);
         
 		//find the shortestPath
-		shortestPath = SP.DijkstraAlgorithm(visibilityLines,startPoint,endPoint);
-		robotPanel.repaint();
+		
+		
+//		robotPanel.repaint();
 	}
 	
 	class DrawCanvas extends JPanel{
@@ -203,7 +243,6 @@ public class UserInterface implements ActionListener{
 		public DrawCanvas(){
 			this.addMouseListener(new MouseAdapter() {
 	             public void mouseClicked(MouseEvent e) {
-	            	 
 	            	 if(setStart == true){
 	    	        	 startPoint.x = e.getPoint().x;
 	    	        	 startPoint.y = e.getPoint().y;
@@ -227,8 +266,15 @@ public class UserInterface implements ActionListener{
 	         if(startPoint.x >= 0 || startPoint.y >= 0 ){
 	        	 String message_start = "Start";
 	        	 g.setColor(Color.RED);
-	        	 g.drawString(message_start,startPoint.x+12,startPoint.y+12);
-	        	 g.fillRect(startPoint.x,startPoint.y,10,10);
+	        	
+	        	 
+	        	 if(circleRobot){
+		        	 g.fillOval(startPoint.x-circleRobotR, startPoint.y-circleRobotR, circleRobotR*2, circleRobotR*2);
+		        	 g.drawString(message_start,startPoint.x-60,startPoint.y-15);
+		         }else{
+		        	 g.fillRect(startPoint.x-5,startPoint.y-5,10,10);
+		        	 g.drawString(message_start,startPoint.x-40,startPoint.y+12);
+		         }
 	        	 setStart = false;
 	         }
 	         
@@ -237,7 +283,7 @@ public class UserInterface implements ActionListener{
 	        	 String message_end = "End";
 	        	 g.setColor(Color.RED);
 	        	 g.drawString(message_end, endPoint.x+12, endPoint.y+12);
-	        	 g.fillRect(endPoint.x, endPoint.y, 10, 10);
+	        	 g.fillRect(endPoint.x-5, endPoint.y-5, 10, 10);
 	        	 setEnd = false;
 	         }
 	         
@@ -251,17 +297,44 @@ public class UserInterface implements ActionListener{
 	         
 	         //draw visibility lines
 	         if(setVisibility){
-	        	 for (Line2D l : visibilityLines){
-	        		 g.setColor(Color.GRAY);
-	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+	        	 if(pointRobot){
+	        		 for (Line2D l : visibilityLines){
+		        		 g.setColor(Color.BLACK);
+		        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+		        	 }
+	        	 }else if(circleRobot){
+	        		 for (Line2D l : growvisibilityLines){
+		        		 g.setColor(Color.BLACK);
+		        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+		        	 }
 	        	 }
 	         }
 
 	         //show shortest point
-	         if(showShortestPath && shortestPath.size() != 0){
-	        	 for (Line2D l : shortestPath){
-	        		 g.setColor(Color.BLUE);
-	        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+	         if(pointRobot){
+	        	 if(showShortestPath && shortestPath.size() != 0){
+		        	 for (Line2D l : shortestPath){
+		        		 g.setColor(Color.BLUE);
+		        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+		        	 }
+		         }
+	         }else if(circleRobot){
+	        	 if(showShortestPath && growshortestPath.size() != 0){
+		        	 for (Line2D l : growshortestPath){
+		        		 g.setColor(Color.BLUE);
+		        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+		        	 }
+		         }
+	         }
+	         
+	         
+	         if(circleRobot){
+	        	 if(growpolygons.size() != 0){
+		        	 for (int i = 0; i < polygons.size(); i++){
+		        		 g.setColor(Color.GRAY);
+		        		 g.drawPolygon(growpolygons.get(i));
+		        		 g.fillPolygon(growpolygons.get(i));
+		        	 }
 	        	 }
 	         }
 	         
@@ -272,18 +345,99 @@ public class UserInterface implements ActionListener{
 	        		 g.drawPolygon(polygons.get(i));
 	        		 g.fillPolygon(polygons.get(i));
 	        	 }
-
-//	        	 for(int i = 0; i < testPoints.size();i++){
-//	        		 g.setColor(Color.BLUE);
-//	        		 g.drawString(Integer.toString(i),testPoints.get(i).x, testPoints.get(i).y);
-//	        		 g.fillOval(testPoints.get(i).x, testPoints.get(i).y, 5, 5);
-//	        	 }
 	         }
 	         
+//	         System.out.println(growpointClicked);
+//	         if(growpointClicked.size() != 0){
+//	        	 g.setColor(Color.blue);
+//	        	 for(int i = 0; i < growpointClicked.size(); i++){
+//	        		 g.drawString(Integer.toString(i)+"Here!!!!", growpointClicked.get(i).x-10, growpointClicked.get(i).y-10);
+//	        		 System.out.println(growpointClicked.get(i).x+"  "+ growpointClicked.get(i).y);
+//	        	 }
+//	         }
+	         
+//	         Point p1 = new Point(45,614);
+//	         Point p2 = new Point(711,599);
+//	         g.drawLine(p1.x, p1.y, p2.x, p2.y);
+//	         Point newp1 = getGrowPoint(p1,p2,10,1);
+//	         Point newp2 = getGrowPoint(p2,p1,10,-1);
+//	         System.out.println(newp2);
+//	         g.drawRect(newp1.x, newp1.y, 5, 5);
+//	         g.drawRect(newp2.x, newp2.y, 5, 5);
 	      }	
 	}
 	
+	
+	private Point getGrowPoint(Point p1, Point p2,int r,int testSide){
+		  Point growP = null;
+		  Boolean Perpendicular;
+		  Double x1 = (double) p1.x;
+		  Double x2 = (double) p2.x;
+		  Double y1 = (double) p1.y;
+		  Double y2 = (double) p2.y;
+		  //p1 - p2 distance
+		  Double distance = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+		  double sin = Math.abs(x1-x2)/ distance;
+		  double cos = Math.abs(y1-y2)/ distance;
+		  
+		  Double newX,newY;
+		  newX = (x1-r*cos);
+		  newY = (y1+r*sin);
+		  
+		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
+		  // testSide used to test which side the point is, -1 is at right of the line, 1 is left of the line
+		  //perpendicular is used to test if the the point line is perpendicular of the line
+		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
+			  growP = new Point(newX.intValue(),newY.intValue());
+		  System.out.println(Perpendicular);
+		  System.out.println(((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) -(x2-x1)*(x2-x1) - (y2-y1)*(y2-y1)));
+		  
+		  newX = (x1+r*cos);
+		  newY = (y1+r*sin);
+		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
+		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
+			  growP = new Point(newX.intValue(),newY.intValue());
+		  System.out.println(Perpendicular);
+		  System.out.println(((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) -(x2-x1)*(x2-x1) - (y2-y1)*(y2-y1)));
+		  
+		  newX = (x1+r*cos);
+		  newY = (y1-r*sin);
+		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
+		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
+			  growP = new Point(newX.intValue(),newY.intValue());
+		  System.out.println(Perpendicular);
+		  System.out.println(((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) -(x2-x1)*(x2-x1) - (y2-y1)*(y2-y1)));
+		  
+		  newX = (x1-r*cos);
+		  newY = (y1-r*sin);
+		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
+		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular) 
+			  growP = new Point(newX.intValue(),newY.intValue());
+		  System.out.println(Perpendicular);
+		  System.out.println(((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
+				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) -(x2-x1)*(x2-x1) - (y2-y1)*(y2-y1)));
+		  
+		  return growP;
+	  }
+	
 
+	
+	
+	  private int pointLocation(Point A, Point B, Point P) {
+		    int pointPosition = (B.x-A.x)*(P.y-A.y) - (B.y-A.y)*(P.x-A.x);
+		    if(pointPosition > 0){
+		    	return 1;
+		    }else{
+		    	return -1;
+		    }
+	  }
 	
 }
 
