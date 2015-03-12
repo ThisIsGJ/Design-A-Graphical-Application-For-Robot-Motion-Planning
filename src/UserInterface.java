@@ -153,7 +153,7 @@ public class UserInterface implements ActionListener{
 		growpolygons.add(creatPolygon(growpointClicked,growLines,growNodes));
 		
 		pointClicked.clear();
-//		growpointClicked.clear();
+		growpointClicked.clear();
 //		robotPanel.repaint();
 	}
 	
@@ -335,6 +335,12 @@ public class UserInterface implements ActionListener{
 		        		 g.drawPolygon(growpolygons.get(i));
 		        		 g.fillPolygon(growpolygons.get(i));
 		        	 }
+		        	 
+		        	 for (Line2D l : polygonLines){
+		        		 g.drawOval((int)l.getX1() - circleRobotR, (int)l.getY1() - circleRobotR,circleRobotR*2,circleRobotR*2);
+		        		 g.fillOval((int)l.getX1() - circleRobotR, (int)l.getY1() - circleRobotR,circleRobotR*2,circleRobotR*2);
+		        	 }
+		        	 
 	        	 }
 	         }
 	         
@@ -346,99 +352,8 @@ public class UserInterface implements ActionListener{
 	        		 g.fillPolygon(polygons.get(i));
 	        	 }
 	         }
-	         
-//	         System.out.println(growpointClicked);
-//	         if(growpointClicked.size() != 0){
-//	        	 g.setColor(Color.blue);
-//	        	 for(int i = 0; i < growpointClicked.size(); i++){
-//	        		 g.drawString(Integer.toString(i)+"Here!!!!", growpointClicked.get(i).x-10, growpointClicked.get(i).y-10);
-//	        		 System.out.println(growpointClicked.get(i).x+"  "+ growpointClicked.get(i).y);
-//	        	 }
-//	         }
-	         
-//	         Point p1 = new Point(45,614);
-//	         Point p2 = new Point(711,599);
-//	         g.drawLine(p1.x, p1.y, p2.x, p2.y);
-//	         Point newp1 = getGrowPoint(p1,p2,10,1);
-//	         Point newp2 = getGrowPoint(p2,p1,10,-1);
-//	         System.out.println(newp2);
-//	         g.drawRect(newp1.x, newp1.y, 5, 5);
-//	         g.drawRect(newp2.x, newp2.y, 5, 5);
 	      }	
 	}
-	
-	
-	private Point getGrowPoint(Point p1, Point p2,int r,int testSide){
-		  Point growP = null;
-		  Boolean Perpendicular;
-		  Double x1 = (double) p1.x;
-		  Double x2 = (double) p2.x;
-		  Double y1 = (double) p1.y;
-		  Double y2 = (double) p2.y;
-		  //p1 - p2 distance
-		  Double distance = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
-		  double sin = Math.abs(x1-x2)/ distance;
-		  double cos = Math.abs(y1-y2)/ distance;
-		  
-		  Double newX,newY;
-		  newX = (x1-r*cos);
-		  newY = (y1+r*sin);
-		  
-		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
-				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
-		  // testSide used to test which side the point is, -1 is at right of the line, 1 is left of the line
-		  //perpendicular is used to test if the the point line is perpendicular of the line
-		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
-			  growP = new Point(newX.intValue(),newY.intValue());
-		  System.out.println(Perpendicular);
-		  System.out.println(((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
-				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) -(x2-x1)*(x2-x1) - (y2-y1)*(y2-y1)));
-		  
-		  newX = (x1+r*cos);
-		  newY = (y1+r*sin);
-		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
-				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
-		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
-			  growP = new Point(newX.intValue(),newY.intValue());
-		  System.out.println(Perpendicular);
-		  System.out.println(((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
-				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) -(x2-x1)*(x2-x1) - (y2-y1)*(y2-y1)));
-		  
-		  newX = (x1+r*cos);
-		  newY = (y1-r*sin);
-		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
-				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
-		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular)
-			  growP = new Point(newX.intValue(),newY.intValue());
-		  System.out.println(Perpendicular);
-		  System.out.println(((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
-				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) -(x2-x1)*(x2-x1) - (y2-y1)*(y2-y1)));
-		  
-		  newX = (x1-r*cos);
-		  newY = (y1-r*sin);
-		  Perpendicular = Math.abs((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
-				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) - (x2-x1)*(x2-x1)-(y2-y1)*(y2-y1)) <= 1;
-		  if(pointLocation(p1,p2,new Point(newX.intValue(),newY.intValue())) == testSide && Perpendicular) 
-			  growP = new Point(newX.intValue(),newY.intValue());
-		  System.out.println(Perpendicular);
-		  System.out.println(((newX - x2)*(newX - x2)+(newY - y2)*(newY - y2) -
-				  (newX-x1)*(newX-x1) - (newY-y1)*(newY-y1) -(x2-x1)*(x2-x1) - (y2-y1)*(y2-y1)));
-		  
-		  return growP;
-	  }
-	
-
-	
-	
-	  private int pointLocation(Point A, Point B, Point P) {
-		    int pointPosition = (B.x-A.x)*(P.y-A.y) - (B.y-A.y)*(P.x-A.x);
-		    if(pointPosition > 0){
-		    	return 1;
-		    }else{
-		    	return -1;
-		    }
-	  }
-	
 }
 
 

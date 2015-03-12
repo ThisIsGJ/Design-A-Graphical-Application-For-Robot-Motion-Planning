@@ -113,7 +113,7 @@ public class DrawPolygon{
 	  }   
 	  
 	  
-// second try	  
+// get the grow points - circle robot
 	  public ArrayList<Point> growPolygon(ArrayList<Point> Points, int circleRobotR){
 		  ArrayList<Point> growPoints = new ArrayList<Point>();
 		  for(int i = 0; i < Points.size()-1;i++){
