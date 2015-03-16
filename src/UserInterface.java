@@ -222,12 +222,17 @@ public class UserInterface implements ActionListener{
 		// for point robot
 		polygonNodes.add(0, startPoint);
         polygonNodes.add(endPoint);
+     // collision detection 
+//        ArrayList<Point> collisionDectectionNodes = VG.collisionDetction(growpolygons);
+//        visibilityLines = VG.createVisibilityGraph(collisionDectectionNodes,polygonLines,polygons);
         visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
         shortestPath = SP.DijkstraAlgorithm(visibilityLines,startPoint,endPoint);
         
         //for circle robot
         growNodes.add(0, startPoint);
 	    growNodes.add(endPoint);
+	    // collision detection 
+	    
         growvisibilityLines = VG.createVisibilityGraph(growNodes,growLines,growpolygons);
         growshortestPath = SP.DijkstraAlgorithm(growvisibilityLines, startPoint, endPoint);
         
@@ -246,9 +251,11 @@ public class UserInterface implements ActionListener{
 	            	 if(setStart == true){
 	    	        	 startPoint.x = e.getPoint().x;
 	    	        	 startPoint.y = e.getPoint().y;
+	    	        	 setStart = false;
 	    	         }else if(setEnd == true){
 	    	        	 endPoint.x = e.getPoint().x;
 	    	        	 endPoint.y = e.getPoint().y;
+	    	        	 setEnd = false;
 	    	         }else {
 	    	        	 pointClicked.add(e.getPoint());
 	    	         }    
@@ -266,7 +273,6 @@ public class UserInterface implements ActionListener{
 	         if(startPoint.x >= 0 || startPoint.y >= 0 ){
 	        	 String message_start = "Start";
 	        	 g.setColor(Color.RED);
-	        	
 	        	 
 	        	 if(circleRobot){
 		        	 g.fillOval(startPoint.x-circleRobotR, startPoint.y-circleRobotR, circleRobotR*2, circleRobotR*2);
@@ -275,7 +281,6 @@ public class UserInterface implements ActionListener{
 		        	 g.fillRect(startPoint.x-5,startPoint.y-5,10,10);
 		        	 g.drawString(message_start,startPoint.x-40,startPoint.y+12);
 		         }
-	        	 setStart = false;
 	         }
 	         
 	         //draw end point
@@ -284,7 +289,6 @@ public class UserInterface implements ActionListener{
 	        	 g.setColor(Color.RED);
 	        	 g.drawString(message_end, endPoint.x+12, endPoint.y+12);
 	        	 g.fillRect(endPoint.x-5, endPoint.y-5, 10, 10);
-	        	 setEnd = false;
 	         }
 	         
 	         //store the clicked point to draw a polygon
@@ -333,25 +337,64 @@ public class UserInterface implements ActionListener{
 		        	 for (int i = 0; i < polygons.size(); i++){
 		        		 g.setColor(Color.GRAY);
 		        		 g.drawPolygon(growpolygons.get(i));
-		        		 g.fillPolygon(growpolygons.get(i));
+//		        		 g.fillPolygon(growpolygons.get(i));
 		        	 }
 		        	 
 		        	 for (Line2D l : polygonLines){
 		        		 g.drawOval((int)l.getX1() - circleRobotR, (int)l.getY1() - circleRobotR,circleRobotR*2,circleRobotR*2);
-		        		 g.fillOval((int)l.getX1() - circleRobotR, (int)l.getY1() - circleRobotR,circleRobotR*2,circleRobotR*2);
+//		        		 g.fillOval((int)l.getX1() - circleRobotR, (int)l.getY1() - circleRobotR,circleRobotR*2,circleRobotR*2);
 		        	 }
 		        	 
 	        	 }
 	         }
 	         
-	         //draw polygons
+	         //draw original polygons
 	         if(polygons.size() != 0){
 	        	 for (int i = 0; i < polygons.size(); i++){
 	        		 g.setColor(Color.BLACK);
 	        		 g.drawPolygon(polygons.get(i));
-	        		 g.fillPolygon(polygons.get(i));
+//	        		 g.fillPolygon(polygons.get(i));
 	        	 }
 	         }
+	         
+//	         ArrayList<Line2D> ll = new ArrayList<Line2D>();
+//	         Line2D l1 = new Line2D.Double();
+//	         Line2D l2 = new Line2D.Double();
+//	         l1.setLine(new Point(1,1),new Point(9,9));
+//	         l2.setLine(new Point(9,9),new Point(1,1));
+//	         System.out.println(l1.getP1().equals(l2.getP2()));
+//	         
+	         
+	         
+//	         int xPoly[] = {10,10,100,100};
+//	         int yPoly[] = {10,100,100,10};
+//	         Polygon p1 = new Polygon(xPoly,yPoly,4);
+//	         
+//	         int xl[] = {50,100,150};
+//	         int yl[] = {50,150,50};
+//	         Polygon p2 = new Polygon(xl,yl,3);
+//	         
+//	         int x2[] = {100,200,180};
+//	         int y2[] = {80,100,150};
+//	         Polygon p3 = new Polygon(x2,y2,3);
+//	         
+//	         ArrayList<Polygon> pp = new ArrayList<Polygon>();
+//	         pp.add(p1);
+//	         pp.add(p2);
+//	         pp.add(p3);
+//	         
+//	         ArrayList<Point> po = new ArrayList<Point>();
+//	         
+//	         po = VG.collisionDetction(pp);
+//	         for(Point p : po){
+//	        	 System.out.println(p);
+//	        	 g.setColor(Color.red);
+//	        	 g.drawRect(p.x, p.y, 10, 10);
+//	         }
+//	         g.setColor(Color.BLACK);
+//	         g.drawPolygon(p1);
+//	         g.drawPolygon(p2);
+//	         g.drawPolygon(p3);
 	      }	
 	}
 }

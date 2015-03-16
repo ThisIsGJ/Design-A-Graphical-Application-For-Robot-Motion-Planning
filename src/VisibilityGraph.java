@@ -1,3 +1,4 @@
+import java.awt.List;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Line2D;
@@ -6,17 +7,16 @@ import java.util.ArrayList;
 
 public class VisibilityGraph {
     
+	private DrawPolygon DP = new DrawPolygon();
+	
     public ArrayList<Line2D> createVisibilityGraph(ArrayList<Point> polygonNodes,ArrayList<Line2D> polygonLines,
     												ArrayList<Polygon> polygons)
     {
             ArrayList<Line2D> vizLines = new ArrayList<Line2D>();
-                        
-            //Collect the edges of each polygon;
             for (int i = 0; i < polygonNodes.size(); i++){
             	for (int j = 0; j< polygonNodes.size(); j++){
             		if(i != j){
             			 Line2D.Double tempLine = new Line2D.Double(polygonNodes.get(i), polygonNodes.get(j));
-            			 
             			 //check if this line intersects any of the grown polygon
             			 //step 1: if the intersect point is not the vertex of the polygon, then the line intersect the polygon  
                          boolean intersects = false;
@@ -28,31 +28,48 @@ public class VisibilityGraph {
                                 	 break;
                                  }
                          }
-                         // step 2: if the line's point1 and point2 is located at polygon vertex, then it is inside the polygon
-                         // so set intersect true
-                         for(Polygon polygon : polygons)
-                         {
-                        	 int[] points_x = polygon.xpoints;
-                        	 int[] points_y = polygon.ypoints;
-                        	 ArrayList<Point2D> testPoints = new ArrayList<Point2D>();
-                        	 for(int pn = 0; pn < points_x.length;pn++){
-                        		 Point2D testP = new Point(points_x[pn],points_y[pn]);
-                        		 testPoints.add(testP);
-                        	 }
-                        	 if(testPoints.contains(tempLine.getP1()) && testPoints.contains(tempLine.getP2())){
-                        		 intersects = true;
-                        		 break;
-                        	 }
-                         }
+                         
                          //if this line does NOT intersect any grown polygon, add it to the visibility lines
                          if(!intersects){
-                                 vizLines.add(tempLine);
+                        	 
+                        	 // step 2: if the line's point1 and point2 is located at polygon vertex, then it is inside the polygon
+                             // so set intersect true
+                             for(Polygon polygon : polygons)
+                             {
+                            	 int[] points_x = polygon.xpoints;
+                            	 int[] points_y = polygon.ypoints;
+                            	 ArrayList<Point2D> testPoints = new ArrayList<Point2D>();
+                            	 for(int pn = 0; pn < points_x.length;pn++){
+                            		 Point2D testP = new Point(points_x[pn],points_y[pn]);
+                            		 testPoints.add(testP);
+                            	 }
+                            	 
+                            	 if(testPoints.contains(tempLine.getP1()) && testPoints.contains(tempLine.getP2())){
+                            		 intersects = true;
+                            		 for(Line2D l : polygonLines){
+                            			 boolean b1 = l.getP1().equals(tempLine.getP1()) && l.getP2().equals(tempLine.getP2());
+                            			 boolean b2 = l.getP1().equals(tempLine.getP2()) && l.getP2().equals(tempLine.getP1());
+                            			 if(b1 || b2){
+                            				 intersects = false;
+                                    		 break;
+                            			 }
+                            		 }
+                            	 }
+                            	 
+                            	 //not sure
+                            	 // the points are two different polygons vertex(one polygon's vertex is insiede other polygons) 
+                            	 if(polygon.contains(tempLine.getP1()) || polygon.contains(tempLine.getP2())){
+                            		 intersects = true;
+                            	 }
+                             }
                          }
+                         if(!intersects)
+                         vizLines.add(tempLine);
             		}
             	}
             }
-           
-            vizLines.addAll(polygonLines);
+            
+//            vizLines.addAll(polygonLines);
             return vizLines;
     }
     
@@ -77,5 +94,83 @@ public class VisibilityGraph {
 	    if (xi < Math.min(x3,x4) || xi > Math.max(x3,x4)) return null;
 	    return p;
 	}
+	
+//	public ArrayList<Point> collisionDetction(ArrayList<Polygon> polygons){
+//		ArrayList<Polygon> testP = new ArrayList<Polygon>();
+//		ArrayList<ArrayList<Polygon>> storeP = new ArrayList<ArrayList<Polygon>>();
+//		Boolean test = false;
+//		
+//		testP.addAll(polygons);
+//		for (int i = 0; i < polygons.size(); i++){
+//			ArrayList<Polygon> midSP = new ArrayList<Polygon>();
+//			testP.remove(polygons.get(i));
+//			
+//			for(ArrayList<Polygon> lp : storeP){
+//				if(lp.contains(polygons.get(i))){
+//					test = true;
+//				}
+//			}
+//			
+//			for (int j = 0;j < testP.size(); j++){
+//				if(testIntersection(polygons.get(i),testP.get(j))){
+//					if(!storeP.isEmpty()){
+//						if(test){
+//							for(ArrayList<Polygon> lp : storeP){
+//								if(lp.contains(polygons.get(i))){
+//									lp.add(testP.get(j));
+//								}
+//							}
+//						}
+//					}
+//					if(!test){
+//						midSP.add(testP.get(j));
+//					}
+//				}
+//			}
+//			
+//			if(!test){
+//				midSP.add(polygons.get(i));
+//				storeP.add(midSP);
+//			}
+//			
+//			test = false;
+//		}
+//		
+//		// get new nodes after collision detection
+//		ArrayList<Point> newNodes = new ArrayList<Point>();
+//		ArrayList<Point> storeNodes = new ArrayList<Point>();
+//		Polygon theP =  new Polygon();
+//		for(int i = 0; i < storeP.size(); i++){
+//			for(int j = 0; j < storeP.get(i).size(); j++){
+//				theP = storeP.get(i).get(j);
+//				for(int l = 0; l < theP.xpoints.length; l++){
+//					newNodes.add(new Point(theP.xpoints[l],theP.ypoints[l]));
+//				}
+//			}
+//			storeNodes.addAll(DP.QuickHull(newNodes));
+//			newNodes.clear();
+//		}
+//		
+//		return storeNodes;
+//	}
+//	
+//	//test if two polygons are intersected
+//	public static boolean testIntersection(Polygon p1, Polygon p2) {
+//		Point p; 
+//		for(int i = 0; i < p2.npoints;i++) {
+//			p = new Point(p2.xpoints[i],p2.ypoints[i]);
+//			if(p1.contains(p))
+//				return true; 
+//			} 
+//		
+//		for(int i = 0; i < p1.npoints;i++) {
+//			p = new Point(p1.xpoints[i],p1.ypoints[i]); 
+//			if(p2.contains(p)) 
+//				return true; 
+//			}
+//		
+//		return false; 
+//	}
+	
 	
 }
