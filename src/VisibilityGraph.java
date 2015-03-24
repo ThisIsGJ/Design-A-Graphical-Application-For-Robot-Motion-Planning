@@ -1,4 +1,3 @@
-import java.awt.List;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Line2D;
@@ -7,11 +6,15 @@ import java.util.ArrayList;
 
 public class VisibilityGraph {
     
-	private DrawPolygon DP = new DrawPolygon();
-	
     public ArrayList<Line2D> createVisibilityGraph(ArrayList<Point> polygonNodes,ArrayList<Line2D> polygonLines,
     												ArrayList<Polygon> polygons)
     {
+//    		Line2D ol1 = new Line2D.Double(); 
+//    		Line2D ol2 = new Line2D.Double();
+//    		ol1.setLine(new Point(300,300),new Point(600,200));
+//    		ol2.setLine(new Point(500,500), new Point(500,300));
+//    		System.out.println(intersection(ol1,ol2));
+    		
             ArrayList<Line2D> vizLines = new ArrayList<Line2D>();
             for (int i = 0; i < polygonNodes.size(); i++){
             	for (int j = 0; j< polygonNodes.size(); j++){
@@ -23,12 +26,13 @@ public class VisibilityGraph {
                          for(Line2D polyLine : polygonLines)
                          {			
                                  Point intersectP = intersection(tempLine,polyLine);
+//                                 System.out.println(intersectP +  " l: " + polyLine.getP1() + " " + polyLine.getP2());
                                  if(!polygonNodes.contains(intersectP) && intersectP != null){
                                 	 intersects = true;
                                 	 break;
                                  }
                          }
-                         
+//                         System.out.println("1 i: " + i + "j: " + j + intersects + polygonNodes.get(i) + polygonNodes.get(j));
                          //if this line does NOT intersect any grown polygon, add it to the visibility lines
                          if(!intersects){
                         	 
@@ -55,21 +59,23 @@ public class VisibilityGraph {
                             			 }
                             		 }
                             	 }
-                            	 
-                            	 //not sure
                             	 // the points are two different polygons vertex(one polygon's vertex is insiede other polygons) 
-                            	 if(polygon.contains(tempLine.getP1()) || polygon.contains(tempLine.getP2())){
-                            		 intersects = true;
+                            	 if(polygon.contains(tempLine.getP1())){
+                            		 if(!testPoints.contains(tempLine.getP1())){
+                            			 intersects = true;
+                            		 }
+                            	 }else if(polygon.contains(tempLine.getP2())){
+                            		 if(!testPoints.contains(tempLine.getP2())){
+                            			 intersects = true;
+                            		 }
                             	 }
                              }
+//                             System.out.println("2 i: " + i + "j: " + j + intersects);
                          }
-                         if(!intersects)
-                         vizLines.add(tempLine);
+                         if(!intersects){vizLines.add(tempLine);}
             		}
             	}
             }
-            
-//            vizLines.addAll(polygonLines);
             return vizLines;
     }
     
@@ -79,6 +85,7 @@ public class VisibilityGraph {
 		int x2 = (int) l1.getX2();
 		int y1 = (int) l1.getY1();
 		int y2 = (int) l1.getY2();
+		
 		int x3 = (int) l2.getX1();
 		int x4 = (int) l2.getX2();
 		int y3 = (int) l2.getY1();
@@ -92,6 +99,10 @@ public class VisibilityGraph {
 	    Point p = new Point(xi,yi);
 	    if (xi < Math.min(x1,x2) || xi > Math.max(x1,x2)) return null;
 	    if (xi < Math.min(x3,x4) || xi > Math.max(x3,x4)) return null;
+	    
+	    if (yi < Math.min(y1,y2) || yi > Math.max(y1,y2)) return null; 
+	    if (yi < Math.min(y3,y4) || yi > Math.max(y3,y4)) return null;
+	    
 	    return p;
 	}
 	

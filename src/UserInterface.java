@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -130,7 +131,9 @@ public class UserInterface implements ActionListener{
 		}else if(choice == "Clean All"){
 			cleanAll();
 		}else if(choice == "<html>Visibility<br />Graph</html>"){
-			showVG();
+			if(startPoint.x != -1 && endPoint.x != -1){
+				showVG();
+			}
 		}else if(choice == "Point Robot"){
 			circleRobot = false;
 			pointRobot = true;
@@ -241,7 +244,7 @@ public class UserInterface implements ActionListener{
 		
 //		robotPanel.repaint();
 	}
-	
+
 	class DrawCanvas extends JPanel{
 		private static final long serialVersionUID = 1L;
 		
@@ -337,12 +340,12 @@ public class UserInterface implements ActionListener{
 		        	 for (int i = 0; i < polygons.size(); i++){
 		        		 g.setColor(Color.GRAY);
 		        		 g.drawPolygon(growpolygons.get(i));
-//		        		 g.fillPolygon(growpolygons.get(i));
+		        		 g.fillPolygon(growpolygons.get(i));
 		        	 }
 		        	 
 		        	 for (Line2D l : polygonLines){
 		        		 g.drawOval((int)l.getX1() - circleRobotR, (int)l.getY1() - circleRobotR,circleRobotR*2,circleRobotR*2);
-//		        		 g.fillOval((int)l.getX1() - circleRobotR, (int)l.getY1() - circleRobotR,circleRobotR*2,circleRobotR*2);
+		        		 g.fillOval((int)l.getX1() - circleRobotR, (int)l.getY1() - circleRobotR,circleRobotR*2,circleRobotR*2);
 		        	 }
 		        	 
 	        	 }
@@ -353,49 +356,94 @@ public class UserInterface implements ActionListener{
 	        	 for (int i = 0; i < polygons.size(); i++){
 	        		 g.setColor(Color.BLACK);
 	        		 g.drawPolygon(polygons.get(i));
-//	        		 g.fillPolygon(polygons.get(i));
+	        		 g.fillPolygon(polygons.get(i));
 	        	 }
 	         }
 	         
-//	         ArrayList<Line2D> ll = new ArrayList<Line2D>();
-//	         Line2D l1 = new Line2D.Double();
-//	         Line2D l2 = new Line2D.Double();
-//	         l1.setLine(new Point(1,1),new Point(9,9));
-//	         l2.setLine(new Point(9,9),new Point(1,1));
-//	         System.out.println(l1.getP1().equals(l2.getP2()));
-//	         
+//	         Polygon p = new Polygon(new int[]{300, 400, 500, 500}, new int[]{200, 400, 400, 200}, 4);
+//	         g.drawPolygon(p);
+//	         System.out.println(p.contains(new Point(400,400)));
+//	         g.drawRect(400, 300, 10, 10);
 	         
+//	         Polygon pl1 = new Polygon(new int[]{300, 400, 500, 500}, new int[]{300, 500, 500, 300}, 4);
+//	         g.drawPolygon(pl1);
 	         
-//	         int xPoly[] = {10,10,100,100};
-//	         int yPoly[] = {10,100,100,10};
-//	         Polygon p1 = new Polygon(xPoly,yPoly,4);
-//	         
-//	         int xl[] = {50,100,150};
-//	         int yl[] = {50,150,50};
-//	         Polygon p2 = new Polygon(xl,yl,3);
-//	         
-//	         int x2[] = {100,200,180};
-//	         int y2[] = {80,100,150};
-//	         Polygon p3 = new Polygon(x2,y2,3);
-//	         
+//	         Polygon pl2 = new Polygon(new int[]{600, 700, 650}, new int[]{200, 200, 400}, 3);
+//	         g.drawPolygon(pl2);
+	         
 //	         ArrayList<Polygon> pp = new ArrayList<Polygon>();
-//	         pp.add(p1);
-//	         pp.add(p2);
-//	         pp.add(p3);
+//	         pp.add(pl1);
+//	         pp.add(pl2);
 //	         
-//	         ArrayList<Point> po = new ArrayList<Point>();
+//	         ArrayList<Point> points = new ArrayList<Point>();
+//	         Point p1 = new Point(300,300);
+//	         Point p2 = new Point(400,500);
+//	         Point p3 = new Point(500,500);
+//	         Point p4 = new Point(500,300);
 //	         
-//	         po = VG.collisionDetction(pp);
-//	         for(Point p : po){
-//	        	 System.out.println(p);
-//	        	 g.setColor(Color.red);
-//	        	 g.drawRect(p.x, p.y, 10, 10);
+//	         Point p5 = new Point(600,200);
+//	         Point p6 = new Point(700,200);
+//	         Point p7 = new Point(650,400);
+//	         
+//	         points.add(p1);
+//	         points.add(p5);
+//	         
+//	         points.add(p2);
+//	         points.add(p3);
+//	         points.add(p4);
+//	         points.add(p6);
+//	         points.add(p7);
+//	         
+//	         ArrayList<Line2D> lines = new ArrayList<Line2D>();
+//	         Line2D l1 = new Line2D.Double();
+//	         l1.setLine(p1,p2);
+//	         Line2D l2 = new Line2D.Double();
+//	         l2.setLine(p2,p3);
+//	         Line2D l3 = new Line2D.Double();
+//	         l3.setLine(p3,p4);
+//	         Line2D l4 = new Line2D.Double();
+//	         l4.setLine(p4,p1);
+//	         
+//	         Line2D l5 = new Line2D.Double();
+//	         l5.setLine(p5,p6);
+//	         Line2D l6 = new Line2D.Double();
+//	         l6.setLine(p6,p7);
+//	         Line2D l7 = new Line2D.Double();
+//	         l7.setLine(p7,p5);
+//	         
+//	         lines.add(l1);
+//	         lines.add(l2);
+//	         lines.add(l3);
+//	         lines.add(l4);
+//	         lines.add(l5);
+//	         lines.add(l6);
+//	         lines.add(l7);
+//	    
+//	         points.add(new Point(200,600));
+//	         points.add(new Point(800,100));
+//	         
+//	         for(Point p : points){
+//        	 g.setColor(Color.red);
+//        	 g.fillRect(p.x, p.y, 10, 10);
+//         }
+//	         
+//	         
+//	         lines = VG.createVisibilityGraph(points, lines, pp);
+//	         
+//	         for(Line2D l : lines){
+//	        	 g.setColor(Color.black);
+//        	 g.drawLine((int)l.getX1(), (int)l.getY1(), (int)l.getX2(), (int)l.getY2());
 //	         }
-//	         g.setColor(Color.BLACK);
-//	         g.drawPolygon(p1);
-//	         g.drawPolygon(p2);
-//	         g.drawPolygon(p3);
-	      }	
+	         
+//	         Line2D ol1 = new Line2D.Double(); 
+//	    		Line2D ol2 = new Line2D.Double();
+//	    		ol1.setLine(new Point(300,300),new Point(600,200));
+//	    		ol2.setLine(new Point(500,500), new Point(500,300));
+//	    		g.drawLine(300, 300, 600, 200);
+//	    		g.drawLine(500, 500, 500, 300);
+//	    		g.drawRect(500, 233, 10, 10);
+	         
+	     }	
 	}
 }
 
