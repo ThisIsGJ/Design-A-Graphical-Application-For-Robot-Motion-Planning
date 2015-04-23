@@ -1,5 +1,6 @@
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 
@@ -113,20 +114,20 @@ public class DrawPolygon{
 	  }   
 	  
 	  
-// get the grow points - circle robot
-	  public ArrayList<Point> growPolygon(ArrayList<Point> Points, int circleRobotR){
+// get the grow points - circlular robot
+	  public ArrayList<Point> cgrowPolygon(ArrayList<Point> Points, int circleRobotR){
 		  ArrayList<Point> growPoints = new ArrayList<Point>();
 		  for(int i = 0; i < Points.size()-1;i++){
-			  growPoints.add(getGrowPoint(Points.get(i),Points.get(i+1),circleRobotR,1)); 
-			  growPoints.add(getGrowPoint(Points.get(i+1),Points.get(i),circleRobotR,-1));
+			  growPoints.add(cgetGrowPoint(Points.get(i),Points.get(i+1),circleRobotR,1)); 
+			  growPoints.add(cgetGrowPoint(Points.get(i+1),Points.get(i),circleRobotR,-1));
 		  }
-		  growPoints.add(getGrowPoint(Points.get(Points.size()-1),Points.get(0),circleRobotR,1));
-		  growPoints.add(getGrowPoint(Points.get(0),Points.get(Points.size()-1),circleRobotR,-1));
+		  growPoints.add(cgetGrowPoint(Points.get(Points.size()-1),Points.get(0),circleRobotR,1));
+		  growPoints.add(cgetGrowPoint(Points.get(0),Points.get(Points.size()-1),circleRobotR,-1));
 		  
 		  return growPoints;
 	  }
 	  
-	  private Point getGrowPoint(Point p1, Point p2,int r,int testSide){
+	  private Point cgetGrowPoint(Point p1, Point p2,int r,int testSide){
 		  Point growP = null;
 		  Boolean Perpendicular;
 		  int x1 = p1.x;
@@ -171,6 +172,35 @@ public class DrawPolygon{
 			  growP = new Point(newX.intValue(),newY.intValue());
 		  
 		  return growP;
+	  }
+	  
+	  
+	  
+	  // get grow points for rectangular robot
+	  public ArrayList<Point> rgrowPolygon(ArrayList<Point> Nodes, int width, int length, Polygon polygon){
+		  int l = length;
+		  int w = width;
+		  int x,y;
+		  ArrayList<Point> growPoints = new ArrayList<Point>();
+		  
+		  for (Point n : Nodes){
+			  x = (int) n.getX();
+			  y = (int) n.getY();
+			  if(!polygon.intersects(x-l, y-w, l, w)){
+				  growPoints.add(new Point((x-l/2),(y-w/2)));
+			  }
+			  if(!polygon.intersects(x-l, y, l, w)){
+				  growPoints.add(new Point((x-l/2),(y+w/2)));
+			  }
+			  if(!polygon.intersects(x, y-w, l, w)){
+				  growPoints.add(new Point((x+l/2),(y-w/2)));
+			  }
+			  if(!polygon.intersects(x, y, l, w)){
+				  growPoints.add(new Point(x+l/2,(y+w/2)));
+			  }
+		  }
+		  
+		  return growPoints;
 	  }
 	  
 }
