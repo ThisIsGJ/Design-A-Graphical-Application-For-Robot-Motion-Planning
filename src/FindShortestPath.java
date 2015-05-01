@@ -20,10 +20,6 @@ public class FindShortestPath {
                      createGraphNode(vizGraph, nodes, p2, start, goal);
              }
                          
-             /////////////////////////////////////////
-             //RUN DIJKSTRAS FROM HERE
-             /////////////////////////////////////////
-             
              //create the 2D array of infinity distances
              double[][] dijGraph = new double[nodes.size()][nodes.size()];
              for(int x=0; x<nodes.size(); x++){

@@ -62,7 +62,8 @@ public class UserInterface implements ActionListener{
 	private int recRobotw = 20;
 	private int recRobotl = 60;
 	
-	String content;
+	private String content;
+	private boolean haveSolution = true;
 	
 	public UserInterface(){
 		frame = new JFrame("Robot Motion");
@@ -117,8 +118,8 @@ public class UserInterface implements ActionListener{
 		//build buttonPanel
 		buttonPanel.setLayout(new GridLayout(12,1));
 		addButton(buttonPanel,"Point Robot");
-		addButton(buttonPanel,"Circle Robot");
-		addButton(buttonPanel,"<html>Rectangle<br />Robot</html>");
+		addButton(buttonPanel,"<html>Rectangular<br />Robot</html>");
+		addButton(buttonPanel,"Circular Robot");
 		addButton(buttonPanel,"Start Point");
 		addButton(buttonPanel,"End Point");
 		addButton(buttonPanel,"<html>Draw<br />Obstacles</html>");
@@ -152,12 +153,15 @@ public class UserInterface implements ActionListener{
 		textPanel.setBorder(new EtchedBorder());
 		
 		//explain how to use
-		content = " Robot Motion Planning! \n I will teach you how you use this application here!\n Firstly, you need build the environments. You could follow the guide which is shown below:" +
-				"\n You can use the \"Start Point\" and \"End Point\" to set the start and end position for the robot!" +
-				"\n You can click on the right canvas to add the points and these points will used to build the obstacles.\n After the points added, you could click " +
-				"the \"Draw Obstacles\" button to draw the obstacles.\n If you want to see the visibility graph of the environment, you could click the \"Visibility Graph\" button." +
-				"\n If you want to know which path is the shortest path, you can click \"Shortest Path\" button. The bule line is the shortest path." +
-				"\n If you want to clean the canvas, just click the \"Clean All\" button";
+		content = " Robot Motion Planning! \n I will teach you how to use this application here!\n Firstly, you need to build the environments. " +
+				"You could follow the guide which is shown as below:" +
+				"\n \"Start Point\"      -- Set the start position for the robot!" +
+				"\n \"End Point\"        -- Set the end psotion for the robot!"+
+				"\n \"Draw Obstacles\"   -- Firtly click on the canvas to add the points and these points will used to build the obstacles.\n" +
+				"                      	 -- After then,click the \"Draw Obstacles\" button to draw the obstacles." +
+				"\n \"Visibility Graph\" -- Show the visibility graph of the environment"+
+				"\n \"Shortest Path\"    -- Show the shortest path.The blue line is the shortest path." +
+				"\n \"Clean All\"        -- Clean the canvas.";
 		textArea = new JTextArea(content);
 		JScrollPane stext = new JScrollPane(textArea);
 		stext.setPreferredSize(new Dimension(980, 100));
@@ -204,10 +208,12 @@ public class UserInterface implements ActionListener{
 			setStart = false;
 		}else if(choice == "<html>Shortest Path</html>"){
 			if(startPoint.x != -1 && endPoint.x != -1){
-				textArea.append("\n The blue line is t he shortest path.");
-				textArea.setCaretPosition(textArea.getDocument().getLength());
 				if(showShortestPath)showShortestPath = false;
-						else showShortestPath = true;
+				else{
+						showShortestPath = true;
+						textArea.append("\n The blue line is the shortest path.");
+						textArea.setCaretPosition(textArea.getDocument().getLength());
+					} 
 				showVG();
 			}else{
 				textArea.append("\n You haven't set the start point or end point yet. Please set them on the environment panel firstly.");
@@ -221,11 +227,11 @@ public class UserInterface implements ActionListener{
 			if(startPoint.x != -1 && endPoint.x != -1){
 				showVG();
 				//show visibility graph
-				if(!setVisibility) setVisibility = true;
-				else if(setVisibility) setVisibility = false;
-				
-				textArea.append("\n Visibility Graph consist of all the black lines includes the edges of obstacles.");
-				textArea.setCaretPosition(textArea.getDocument().getLength());
+				if(!setVisibility){
+					setVisibility = true;
+					textArea.append("\n Visibility Graph is consist of all the black lines includes the edges of obstacles.");
+					textArea.setCaretPosition(textArea.getDocument().getLength());
+				}else if(setVisibility) setVisibility = false;
 			}else{
 				textArea.append("\n You haven't set the start point or end point yet. Please set them on the environment panel firstly.");
 				textArea.setCaretPosition(textArea.getDocument().getLength());
@@ -236,13 +242,13 @@ public class UserInterface implements ActionListener{
 			rectangleRobot = false;
 			circleRobot = false;
 			pointRobot = true;
-		}else if(choice == "Circle Robot"){
+		}else if(choice == "Circular Robot"){
 			textArea.append("\n Now, the robot's shape is a point.");
 			textArea.setCaretPosition(textArea.getDocument().getLength());
 			circleRobot = true;
 			pointRobot = false;
 			rectangleRobot = false;
-		}else if(choice == "<html>Rectangle<br />Robot</html>"){
+		}else if(choice == "<html>Rectangular<br />Robot</html>"){
 			textArea.append("\n Now, the robot's shape is a rectangle.");
 			textArea.setCaretPosition(textArea.getDocument().getLength());
 			rectangleRobot = true;
@@ -393,6 +399,7 @@ public class UserInterface implements ActionListener{
 	private void cleanAll(){
 		setStart = false;
 		setEnd = false;
+		haveSolution = true;
 		startPoint.x = -1;
 		startPoint.y = -1;
 		endPoint.y = -1;
@@ -423,20 +430,17 @@ public class UserInterface implements ActionListener{
 	
 	private void showVG(){
 		
-		if(startPoint.x == -1 ){
-			JOptionPane.showMessageDialog(frame, "Please set the Start point.");
-			setVisibility = false;
-		}else if(endPoint.x == -1){
-			JOptionPane.showMessageDialog(frame, "Please set the End point.");
-			setVisibility = false;
-		}
+//		if(startPoint.x == -1 ){
+//			JOptionPane.showMessageDialog(frame, "Please set the Start point.");
+//			setVisibility = false;
+//		}else if(endPoint.x == -1){
+//			JOptionPane.showMessageDialog(frame, "Please set the End point.");
+//			setVisibility = false;
+//		}
 		
 		// for point robot
 		polygonNodes.add(0, startPoint);
         polygonNodes.add(endPoint);
-        // collision detection 
-        visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
-        shortestPath = SP.DijkstraAlgorithm(visibilityLines,startPoint,endPoint);
         
         cgrowNodes.add(0, startPoint);
 	    cgrowNodes.add(endPoint);
@@ -445,12 +449,20 @@ public class UserInterface implements ActionListener{
 	    rgrowNodes.add(endPoint);
 	    
 	    // collision detection 
+	    visibilityLines = VG.createVisibilityGraph(polygonNodes,polygonLines,polygons);
         cgrowvisibilityLines = VG.createVisibilityGraph(cgrowNodes,cgrowLines,cgrowpolygons);
         rgrowvisibilityLines = VG.createVisibilityGraph(rgrowNodes,rgrowLines,rgrowpolygons);
-        //find the shortestPath
-        cgrowshortestPath = SP.DijkstraAlgorithm(cgrowvisibilityLines, startPoint, endPoint);
-        rgrowshortestPath = SP.DijkstraAlgorithm(rgrowvisibilityLines, startPoint, endPoint);
         
+        //find the shortestPath
+        try{
+        	shortestPath = SP.DijkstraAlgorithm(visibilityLines,startPoint,endPoint);
+        	cgrowshortestPath = SP.DijkstraAlgorithm(cgrowvisibilityLines, startPoint, endPoint);
+            rgrowshortestPath = SP.DijkstraAlgorithm(rgrowvisibilityLines, startPoint, endPoint);
+        }catch (Exception e){
+        	haveSolution = false;
+        	textArea.append("\n The robot cannot move to its destination! Please reset your envionment.");
+ 			textArea.setCaretPosition(textArea.getDocument().getLength());
+        }
 	}
 
 	class DrawCanvas extends JPanel{
@@ -492,9 +504,11 @@ public class UserInterface implements ActionListener{
 		        	 g.fillRect(startPoint.x-recRobotl/2,startPoint.y-recRobotw/2,recRobotl,recRobotw);
 		        	 g.drawString(message_start,startPoint.x-60,startPoint.y-15);
 		         }else{
-		        	 g.fillRect(startPoint.x-5,startPoint.y-5,10,10);
 		        	 g.drawString(message_start,startPoint.x-40,startPoint.y+12);
 		         }
+		        	 g.fillRect(startPoint.x-5,startPoint.y-5,10,10);
+		        	 
+		         
 	         }
 	         
 	         //draw end point
@@ -515,20 +529,22 @@ public class UserInterface implements ActionListener{
 	         
 	         //draw visibility lines
 	         if(setVisibility){
-	        	 if(pointRobot){
-	        		 for (Line2D l : visibilityLines){
-		        		 g.setColor(Color.BLACK);
-		        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
-		        	 }
-	        	 }else if(circleRobot){
-	        		 for (Line2D l : cgrowvisibilityLines){
-		        		 g.setColor(Color.BLACK);
-		        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
-		        	 }
-	        	 }else if(rectangleRobot){
-	        		 for (Line2D l : rgrowvisibilityLines){
-		        		 g.setColor(Color.BLACK);
-		        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+	        	 if(haveSolution){
+	        		 if(pointRobot){
+		        		 for (Line2D l : visibilityLines){
+			        		 g.setColor(Color.BLACK);
+			        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+			        	 }
+		        	 }else if(circleRobot){
+		        		 for (Line2D l : cgrowvisibilityLines){
+			        		 g.setColor(Color.BLACK);
+			        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+			        	 }
+		        	 }else if(rectangleRobot){
+		        		 for (Line2D l : rgrowvisibilityLines){
+			        		 g.setColor(Color.BLACK);
+			        		 g.drawLine((int)l.getX1(),(int)l.getY1(),(int)l.getX2(),  (int)l.getY2());
+			        	 }
 		        	 }
 	        	 }
 	         }

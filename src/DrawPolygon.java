@@ -7,13 +7,14 @@ import java.util.ArrayList;
 public class DrawPolygon{
 	
 	  public ArrayList<Point> QuickHull (ArrayList<Point> points) {
-	    ArrayList<Point> convexH = new ArrayList<Point>();
-	    if (points.size() < 3){
-	    	return (ArrayList)points.clone();
-	    }
+	    ArrayList<Point> convexHull = new ArrayList<Point>();
 	    int minPoint = -1, maxPoint = -1;
 	    int minX = Integer.MAX_VALUE;
 	    int maxX = Integer.MIN_VALUE;
+	    
+	    if (points.size() <= 2){
+	    	return (ArrayList)points.clone();
+	    }
 	    
 	    for (int i = 0; i < points.size(); i++) {
 	      if (points.get(i).x < minX) {
@@ -28,8 +29,8 @@ public class DrawPolygon{
 	    
 	    Point A = points.get(minPoint);
 	    Point B = points.get(maxPoint);
-		convexH.add(A);
-	    convexH.add(B);
+		convexHull.add(A);
+	    convexHull.add(B);
 	    points.remove(A);
 	    points.remove(B);
 	    
@@ -43,10 +44,10 @@ public class DrawPolygon{
 	      else
 	        rightSet.add(p);
 	    }
-	    hullSet(A,B,rightSet,convexH);
-	    hullSet(B,A,leftSet,convexH);
+	    hullSet(A,B,rightSet,convexHull);
+	    hullSet(B,A,leftSet,convexHull);
 	    
-	    return convexH;
+	    return convexHull;
 	  }
 	  
 	  private void hullSet(Point A, Point B, ArrayList<Point> set, ArrayList<Point> hull) {
@@ -114,7 +115,7 @@ public class DrawPolygon{
 	  }   
 	  
 	  
-// get the grow points - circlular robot
+// get the grow points - circular robot
 	  public ArrayList<Point> cgrowPolygon(ArrayList<Point> Points, int circleRobotR){
 		  ArrayList<Point> growPoints = new ArrayList<Point>();
 		  for(int i = 0; i < Points.size()-1;i++){

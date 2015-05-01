@@ -50,7 +50,7 @@ public class VisibilityGraph {
                             			 }
                             		 }
                             	 }
-                            	 // the points are two different polygons vertex(one polygon's vertex is insiede other polygons) 
+                            	 // the points are two different polygons vertex(one polygon's vertex is inside other polygons) 
                             	 if(polygon.contains(tempLine.getP1())){
                             		 if(!testPoints.contains(tempLine.getP1())){
                             			 intersects = true;
@@ -80,6 +80,7 @@ public class VisibilityGraph {
 		int x4 = (int) l2.getX2();
 		int y3 = (int) l2.getY1();
 		int y4 = (int) l2.getY2();
+		
 	    int distance = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
 	    if (distance == 0){
 	    	return null;
